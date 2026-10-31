@@ -83,6 +83,8 @@ fn contract(raw:&str,input:&str)->Result<Contract,String>{
 }
 pub fn parse_plan(raw:&str,input:&str)->Result<Plan,String>{let c=contract(raw,input)?;Ok(Plan{title:c.title,requirements:c.requirements,checklist:c.checklist,production_constraints:c.production_constraints})}
 fn csv_valid(raw:&str,separator:char)->Result<(),String>{
+ // Consume the optional encoding marker for inspection only; product bytes stay unchanged.
+ let raw=raw.strip_prefix('\u{feff}').unwrap_or(raw);
  let mut fields=vec![];let mut row=vec![];let mut cell=String::new();let mut quoted=false;let mut closed=false;let mut chars=raw.chars().peekable();
  while let Some(c)=chars.next(){if quoted{if c=='"'{if chars.peek()==Some(&'"'){chars.next();cell.push('"')}else{quoted=false;closed=true}}else{cell.push(c)}}else{match c{
   '"' if cell.is_empty()&&!closed=>quoted=true,
@@ -93,7 +95,7 @@ fn csv_valid(raw:&str,separator:char)->Result<(),String>{
  if quoted{return Err("CSVの引用符が閉じていません".into())}
  if !cell.is_empty()||!row.is_empty()||closed{row.push(cell);fields.push(row)}
  if fields.is_empty()||fields[0].is_empty()||fields.iter().any(|r|r.len()!=fields[0].len()){return Err("CSV/TSVが空、または列数が一致しません".into())}
- if fields.iter().flatten().any(|v|v.trim_start().starts_with(['=','+','-','@'])&&!v.trim().parse::<f64>().is_ok()){return Err("CSV/TSVの表計算式は安全に開けないため拒否しました".into())}Ok(())
+ if fields.iter().flatten().any(|v|{let visible=v.trim_start_matches(|c:char|c.is_whitespace()||c=='\u{feff}');visible.starts_with(['=','+','-','@'])&&!visible.trim().parse::<f64>().is_ok()}){return Err("CSV/TSVの表計算式は安全に開けないため拒否しました".into())}Ok(())
 }
 pub fn inspect_output(j:&Job,raw:&str)->Result<Vec<File>,String>{
  let p=j.artifacts.iter().find(|a|a.node_id=="plan"&&a.name=="plan.json").ok_or("計画ファイルがありません")?;crate::engine::verify_artifact(p,Path::new(&j.workspace))?;
@@ -141,4 +143,24 @@ pub fn run_tests(engine:&crate::engine::Engine,j:&Job,n:&Node)->Result<(),String
  let report=serde_json::json!({"testCommand":c.test_command,"productDigest":product_digest(j),"request":params,"response":{"exitCode":result["exitCode"],"stdout":redact(result["stdout"].as_str().unwrap_or("")),"stderr":redact(result["stderr"].as_str().unwrap_or(""))},"checkedAt":now(),"inferencePerformed":false});
  engine.write_artifact(n,"run-tests.json",&serde_json::to_vec_pretty(&report).map_err(|e|e.to_string())?,"test")?;
  if result["exitCode"]!=0{return Err("コード実行テストが失敗しました。元の結果を保持し、自動修正推論は開始しません。".into())}Ok(())
+}
+
+#[cfg(test)]mod csv_security_tests{
+ use super::csv_valid;
+ #[test]fn security_csv_bom_formula_variants_are_rejected(){
+  for separator in [',','\t']{for formula in ["=1+1","+SUM(1)","-SUM(1)","@SUM(1)"]{
+   for raw in [format!("\u{feff}{formula}\n"),format!("\u{feff}\"{formula}\"\n"),format!("\u{feff}\u{feff} \t{formula}\n"),format!("header{separator}\" \u{feff} {formula}\"\n"),format!("header\n\"\u{feff}{formula}\"\n")]{
+    assert!(csv_valid(&raw,separator).is_err(),"accepted formula variant: {raw:?}");
+   }
+  }}
+  let escaped:String=serde_json::from_str(r#""\uFEFF=1+1""#).unwrap();assert!(csv_valid(&escaped,',').is_err());
+ }
+ #[test]fn security_csv_bom_and_ordinary_data_remain_valid(){
+  for separator in [',','\t']{
+   for raw in [format!("\u{feff}\"name\"{separator}\"value\"\r\n\"item\"{separator}-3.5\r\n"),format!("\"a{separator}b\"{separator}\"quoted \"\"text\"\"\"\n"),format!("\"line one\nline two\"{separator}+2e3\n"),format!("'text{separator}\u{feff}ordinary\n"),format!("\u{feff}-3{separator}\" \u{feff}+2\"\n")]{
+    assert!(csv_valid(&raw,separator).is_ok(),"rejected ordinary data: {raw:?}");
+   }
+   for raw in [format!("\u{feff}\"not closed{separator}x"),format!("\"a\"x{separator}b"),format!("a{separator}b\nc\n")]{assert!(csv_valid(&raw,separator).is_err());}
+  }
+ }
 }
