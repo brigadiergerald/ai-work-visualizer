@@ -54,6 +54,8 @@ npm run test:boundary
 npm run test:native
 ```
 
+GitHub Actionsで、PRと`main`へのpush時にフロントの検査とWindowsネイティブのビルド・テストを実行します。npm・RustSecによる依存関係の監査は週次でも実行します。Dependabotはnpm・Cargo・GitHub Actionsの依存関係の更新PRを作成します。CodeQL解析はリポジトリのセキュリティ設定で構成します。
+
 通常のテストはオフラインのモックと公開用サンプルを使います。Codexでの推論や実投稿は実行しません。サンプル中のID・保存先は公開用に置換した例で、実行証跡ではありません。テスト用の不正なZIPは検証器の拒否試験用であり、手動で展開・インストールしないでください。
 
 ## ライセンス

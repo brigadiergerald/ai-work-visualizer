@@ -54,6 +54,8 @@ npm run test:boundary
 npm run test:native
 ```
 
+GitHub Actions runs frontend checks and native Windows builds/tests on pull requests and pushes to `main`. Separate npm and RustSec dependency audits also run weekly. Dependabot proposes updates for npm, Cargo, and GitHub Actions dependencies. CodeQL analysis is configured through the repository's security settings.
+
 The standard tests use offline mocks and public sample fixtures. They do not run Codex inference or publish real posts. Fixture IDs and paths have been replaced with examples and are not execution evidence. Malformed ZIP fixtures are inputs for rejection tests; do not manually extract or install them.
 
 ## Licensing
