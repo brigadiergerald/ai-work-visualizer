@@ -59,6 +59,16 @@ fn record(p:&Path,value:Value){fs::write(p.join("result.json"),serde_json::to_ve
  let peer=fs::read_to_string(p.join("offline-peer.jsonl")).unwrap();assert_eq!(peer.lines().count(),4);assert!(peer.lines().all(|v|serde_json::from_str::<Value>(v).unwrap()["inference"]==false));
  record(&p,json!({"result":"PASS","classification":"OFFLINE_FIXTURE","jobs":[a,b],"multifile":4,"formats":["CSV","JSON","Python source","Markdown"],"restartNoReplay":true,"historyUnchanged":true,"liveInference":0,"runtimeCodeTests":"NOT_VERIFIED"}));
 }
+#[test]fn security_bom_csv_tsv_delivery_preserves_safe_bytes_and_rejects_formulas(){
+ for (ext,separator) in [("csv",','),("tsv",'\t')]{
+  let p=root(ext);let e=Engine::open(&p,None).unwrap();e.save_setup(settings(&p)).unwrap();let name=format!("data.{ext}");
+  let safe=format!("\u{feff}\"項目\"{separator}\"値\"\n\"確認\"{separator}3\n");
+  seed(&p,json!([{"name":name,"requiredText":["確認"]}]),json!([{"name":name,"content":safe}]));run(&e,&p,"表データを作成する");
+  let s=e.snapshot();let j=s.job.as_ref().unwrap();assert_eq!(j.status,"completed");let a=j.artifacts.iter().find(|a|a.name==name&&a.kind=="product").unwrap();assert_eq!(fs::read(&a.path).unwrap(),safe.as_bytes());general::verify_product(j).unwrap();
+  seed(&p,json!([{"name":name,"requiredText":["確認"]}]),json!([{"name":name,"content":format!("\u{feff}=1+1{separator}確認\n")}]));run(&e,&p,"表データを作成する");
+  let s=e.snapshot();let j=s.job.as_ref().unwrap();assert_eq!(j.status,"failed");assert!(j.quality.is_none());assert!(!Path::new(&j.workspace).join(&name).exists());assert!(s.events.iter().any(|event|event.job_id==j.job_id&&event.message.contains("表計算式")));
+ }
+}
 #[test]fn product_generic_missing_copy_invalid_csv_paths_and_tampering_stop(){
  let p=root("bad-output");let e=Engine::open(&p,None).unwrap();e.save_setup(settings(&p)).unwrap();
  seed(&p,json!([{"name":"data.csv","requiredText":["確認"]}]),json!([{"name":"data.csv","content":"項目,値\n確認,=HYPERLINK(1)\n"}]));run(&e,&p,"CSVを作成する");let s=e.snapshot();assert_eq!(s.job.as_ref().unwrap().status,"failed");assert!(s.job.as_ref().unwrap().quality.is_none());assert!(!Path::new(&s.job.as_ref().unwrap().workspace).join("data.csv").exists());
