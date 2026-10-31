@@ -1,49 +1,51 @@
-# AI Work Visualizer（開発版）
+# AI Work Visualizer (Development Version)
 
-Windows上で、Codexの作業工程・判断・成果物を確認するローカルデスクトップアプリです。**Windows／Codex利用者向けの開発版ソース**として公開するものです。インストーラーや完成版の配布ではありません。
+English | [日本語](README.ja.md)
 
-チームのキャラクターを上部に全員表示し、左で依頼・判断・作業記録、右で本文・納品結果・投稿準備を確認します。現在のSNS工程は4名、過去の5工程の表示には5名を使います。全5名の素材を同梱しています。
+A local desktop app for Windows that lets you follow Codex workflows, review decisions, and inspect deliverables. This repository provides **development source code for Windows and Codex users**, rather than an installer or a finished release.
 
-## 開発環境と起動
+All characters in the current team stay visible at the top. The left pane contains requests, decisions, and activity; the right pane contains document content, deliverables, and posting preparation. The current social media workflow uses four characters, while historical five-stage workflows use five. Artwork for all five characters is included.
 
-- Windows x64（今回のビルド・オフラインテストはWindows 10で実施）
-- Node.js 24とnpm
-- Rust stable（MSVC）、Visual StudioのC++ビルドツール、Windows SDK、WebView2
-- 利用者自身のCodex実行環境とChatGPTアカウントでのログイン
-- Python 3（バックエンドのオフラインテスト用）
+## Development setup and launch
+
+- Windows x64 (the current build and offline tests were run on Windows 10)
+- Node.js 24 and npm
+- Rust stable (MSVC), Visual Studio C++ Build Tools, the Windows SDK, and WebView2
+- Your own Codex installation, signed in with your ChatGPT account
+- Python 3 for backend offline tests
 
 ```powershell
 npm ci
 npm run desktop
 ```
 
-ソースから実行ファイルを作る場合は次のコマンドを使います。
+To build an executable from source:
 
 ```powershell
 npm run desktop -- -Build
 ```
 
-出力先は `src-tauri/target/release/ai-guild.exe` です。署名・インストーラー作成は行いません。RustやWindowsの前提環境については [Tauriの前提条件](https://v2.tauri.app/start/prerequisites/) を参照してください。
+The output is `src-tauri/target/release/ai-guild.exe`. This command does not sign the app or create an installer. See the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for the Rust and Windows requirements.
 
-## 接続と実行
+## Connecting and running
 
-設定画面で作業先・成果物の保存先・Codex実行ファイルを確認し、接続確認を実行してください。Codexの実効権限とWindows sandboxの確認に失敗した場合、作業を開始しません。認証情報やCodex本体は同梱しません。
+In Settings, check the working directory, output directory, and Codex executable, then run the connection check. The app will not start work if it cannot verify Codex's effective permissions and the Windows sandbox. Credentials and Codex itself are not included.
 
-このソースの公開・利用は、Codexの利用枠を提供するものではありません。実行には利用者自身の利用条件・利用上限が適用されます。OpenAIの公式製品ではありません。接続方式の条件は [Codex App Serverの公式文書](https://learn.chatgpt.com/docs/app-server) を確認してください。
+Publishing or using this source does not provide a Codex usage allowance. Your own account's terms and usage limits apply. This is not an official OpenAI product. See the [official Codex App Server documentation](https://learn.chatgpt.com/docs/app-server) for authentication requirements.
 
-現在使うapp-server認証について、公式文書はローカル／オープンソースアプリの継続利用と、商用・ホスト型サービスでの利用を区別しています。商用・ホスト型サービスにこの認証方式をそのまま転用することはできません。本体コードのApache-2.0と、外部サービスの認証・利用条件は別です。
+For the app-server authentication used here, the official documentation distinguishes continued use in local or open-source applications from use in commercial or hosted services. This authentication method must not be reused as-is for a commercial or hosted service. The Apache-2.0 license for this project's code is separate from external services' authentication requirements and terms of use.
 
-## 現在の範囲
+## Current scope
 
-- SNS文章制作の工程表示、承認、成果物の確認・コピー・保存ファイルを開く操作
-- キャラ全員の表示、判断と作業の記録、過去の工程の表示
-- 接続先アカウント・状態を確認したうえでの投稿準備
+- Social media writing workflows, approvals, deliverable review, copying text, and opening saved files
+- Keeping all team characters visible, recording decisions and activity, and displaying historical workflows
+- Preparing posts after verifying the connected account and its status
 
-投稿用プロバイダーの実装も含みますが、利用者が別途接続設定・対象確認・個別の送信操作を行う必要があります。アプリの起動やキャラの完了表示だけで投稿されることはありません。未対応SNSは送信できません。接続確認や投稿は外部通信を伴うため、最初は独立した作業フォルダとテスト用の入力で確認してください。
+Posting provider implementations are included, but users must configure the connection, verify the destination, and explicitly submit each post. Launching the app or seeing a character marked complete does not publish a post. Unsupported social networks cannot be used for submission. Connection checks and posting involve external communication, so start with an isolated working directory and test input.
 
-開発中のため、Codexや外部サービスの仕様変更に追随できない場合があります。既存環境に同じアプリIDのデータがある場合は事前にバックアップしてください。初版は対応環境・機能を限定し、実サービスへの新規投稿や新しいPCでの一連の操作を一律に保証するものではありません。
+This is under development and may lag behind changes to Codex or external services. Back up existing data before running it in an environment that already uses the same application ID. This initial release has a limited scope; end-to-end operation on a new PC and publishing to live services are not universally verified.
 
-## テスト
+## Tests
 
 ```powershell
 npm run check
@@ -52,15 +54,15 @@ npm run test:boundary
 npm run test:native
 ```
 
-通常のテストはオフラインのモックと公開用サンプルを使います。Codexでの推論や実投稿は実行しません。サンプル中のID・保存先は公開用に置換した例で、実行証跡ではありません。テスト用の不正なZIPは検証器の拒否試験用であり、手動で展開・インストールしないでください。
+The standard tests use offline mocks and public sample fixtures. They do not run Codex inference or publish real posts. Fixture IDs and paths have been replaced with examples and are not execution evidence. Malformed ZIP fixtures are inputs for rejection tests; do not manually extract or install them.
 
-## ライセンス
+## Licensing
 
-**本体コードと文書はApache-2.0、キャラクター素材は別条件です。** リポジトリ全体を一括してApache-2.0の素材集として扱うことはできません。
+**Project code and documentation are licensed under Apache-2.0. Character artwork has separate terms.** The repository as a whole must not be treated as an Apache-2.0 asset pack.
 
-- [LICENSE](LICENSE)：本体コード・文書のApache License 2.0
-- [LICENSING.md](LICENSING.md)：適用範囲
-- [CHARACTER_ASSETS_LICENSE.md](CHARACTER_ASSETS_LICENSE.md)：キャラの同梱・改変は可、キャラだけの再配布は禁止
-- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)：依存ライブラリについて
+- [LICENSE](LICENSE): Apache License 2.0 for project code and documentation
+- [LICENSING.md](LICENSING.md): license scope
+- [CHARACTER_ASSETS_LICENSE.md](CHARACTER_ASSETS_LICENSE.md): bundling and modifying the characters is allowed; standalone redistribution of the characters is prohibited
+- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md): third-party dependencies
 
-GitHub上の閲覧・forkで取得できることと、素材を単独再配布できることは別です。素材の利用条件も保持してください。
+Being able to view or fork the repository on GitHub does not grant permission to redistribute the artwork separately. Keep the artwork's license terms with any permitted redistribution.
