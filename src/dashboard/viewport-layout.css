@@ -1,0 +1,81 @@
+/* Bounded desktop workspace. Each panel owns its overflow; the document never scrolls. */
+html:has(.viewport-fit),body:has(.viewport-fit){height:100%;overflow:hidden;overscroll-behavior:none}
+.dashboard.viewport-fit{height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.viewport-fit>.app-header,.viewport-fit>.connection-bar,.viewport-fit>footer{flex:none}
+.viewport-fit>.app-header{position:relative;z-index:30}
+.viewport-fit>.connection-bar{position:relative;top:auto}
+.viewport-fit .skin-controls{width:auto;flex:0 1 auto}
+.viewport-fit>.global-messages{flex:0 1 auto;min-height:0;max-height:14dvh;margin:0 12px;overflow:auto;overscroll-behavior:contain;scroll-padding:8px}
+.viewport-fit .global-messages .banner{margin:6px 0;padding:8px 12px}
+.viewport-fit .workspace.content-grid{position:relative;flex:1 1 0;min-height:0;width:100%;max-width:none;margin:0;overflow:hidden;padding:12px;gap:12px;grid-template-columns:minmax(0,1fr) minmax(240px,18rem);grid-template-rows:auto minmax(0,1fr) minmax(0,.6fr);grid-template-areas:"compose inspector" "studio inspector" "logs result";align-items:stretch}
+.viewport-fit .workspace[data-mode=input]{grid-template-rows:minmax(0,1fr) minmax(0,.32fr);grid-template-areas:"compose inspector" "studio logs"}
+.viewport-fit .workspace:is([data-mode=result],[data-mode=review]){grid-template-columns:minmax(0,1fr) minmax(0,1.05fr) minmax(240px,18rem);grid-template-areas:"compose compose inspector" "studio result inspector" "logs logs inspector";grid-template-rows:auto minmax(0,1fr) minmax(0,.65fr)}
+.viewport-fit .workspace[data-compose-open=true]:not([data-mode=input]){grid-template-rows:minmax(0,.7fr) minmax(0,1fr) minmax(0,.65fr)}
+.viewport-fit .workspace> :is(.section-compose,.section-stages,.inspector,.section-result,.section-logs){min-width:0;min-height:0;max-height:100%}
+.viewport-fit .section-compose{overflow:auto;overscroll-behavior:contain;scroll-padding:12px;scrollbar-gutter:stable}
+.viewport-fit .section-compose>summary{position:sticky;top:0;z-index:2;background:var(--surface)}
+.viewport-fit .section-compose>.panel{padding:12px 16px}
+.viewport-fit .section-stages{display:flex;overflow:hidden}
+.viewport-fit .section-stages>.panel{display:flex;flex-direction:column;flex:1;min-height:0;overflow:auto;padding:12px}
+.viewport-fit .workshop{display:flex;flex-direction:column;flex:1 1 0;min-height:96px}
+.viewport-fit .workshop-evidence{flex:none;margin-bottom:8px}
+.viewport-fit .workshop-caution{flex:0 1 auto;max-height:24%;overflow:auto;margin:4px 0 8px}
+.viewport-fit .stage-viewport{flex:1 1 0;min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain;scroll-padding:8px;scrollbar-gutter:stable}
+.viewport-fit .stage-viewport>.workshop-room{min-width:0}
+.viewport-fit .formal-stage-details{flex:none;max-height:34%;overflow:auto;margin-top:8px;padding-top:2px;overscroll-behavior:contain}
+.viewport-fit .presentation-reconnect{flex:none;margin-top:8px}
+.viewport-fit .job-failure{flex:0 1 auto;max-height:26%;overflow:auto;margin:8px 0;padding:10px}
+.viewport-fit .inspector{position:static;max-height:100%;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:12px;scroll-padding:12px}
+.viewport-fit .inspector .section-heading{display:flex;margin-bottom:10px}
+.viewport-fit .inspector>.new-request{width:100%}
+.viewport-fit .inspector>.hint{display:block;margin:8px 0}
+.viewport-fit .inspector .history{max-height:none;overflow:visible}
+.viewport-fit .section-result{display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.viewport-fit .section-result>.panel,.viewport-fit .section-result>.output-details{flex:1 1 0;min-height:0;overflow:auto;overscroll-behavior:contain;scroll-padding:12px;scrollbar-gutter:stable}
+.viewport-fit .section-result>.panel{padding:12px}
+.viewport-fit .section-result .text-preview{max-height:36dvh;padding:12px;line-height:1.8;overscroll-behavior:contain}
+.viewport-fit .posting-disclosure{flex:0 1 auto;max-height:46%;overflow:auto;overscroll-behavior:contain;scroll-padding:10px}
+.viewport-fit .posting-disclosure[open]{flex:1 1 0}
+.viewport-fit .posting-disclosure>summary{position:sticky;top:0;z-index:1;background:var(--surface)}
+.viewport-fit .section-result .artifact .action-row{flex-wrap:wrap}
+.viewport-fit .section-logs{display:grid;grid-template-rows:minmax(0,1fr) auto;gap:8px;overflow:hidden}
+.viewport-fit .section-logs:has(.workshop-log[open]){grid-template-rows:minmax(0,1fr) minmax(0,1fr)}
+.viewport-fit .decision-records{min-height:0;overflow:auto;overscroll-behavior:contain;scroll-padding:8px;scrollbar-gutter:stable}
+.viewport-fit .section-logs .decision-records{padding:8px 12px}
+.viewport-fit .decision-entry{scroll-margin-block:8px}
+.viewport-fit .decision-entry>summary{min-height:34px;padding-block:5px}
+.viewport-fit .decision-entry>summary::after{top:4px}
+.viewport-fit .decision-detail{max-height:none;overflow:visible}
+.viewport-fit .decision-scope>summary{min-height:26px;padding-block:3px}
+.viewport-fit .activity-section{min-height:0;overflow:hidden}
+.viewport-fit .workshop-log{max-height:100%;overflow:auto;overscroll-behavior:contain;scroll-padding:8px}
+.viewport-fit .workshop-log .logs{max-height:none;overflow:visible}
+.viewport-fit .section-logs .workshop-log-caption{min-height:38px}
+.viewport-fit>.workspace+footer{padding:0 12px 4px}
+.viewport-fit .shell-tools{position:absolute;inset:8px;z-index:20;overflow:auto;overscroll-behavior:contain;scroll-padding:12px}
+.viewport-fit .shell-tools-header{display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;z-index:2;background:var(--surface);padding-bottom:12px}
+.viewport-fit .shell-tools>.configuration,.viewport-fit .shell-tools>.connector-hub{max-width:none;margin:12px 0}
+.viewport-fit .header-menu-content,.viewport-fit .skin-library{max-height:calc(100dvh - var(--header-bottom,140px) - 24px);overflow:auto;overscroll-behavior:contain}
+.viewport-fit .skin-library{position:fixed;right:12px;top:calc(var(--header-bottom,140px) + 12px);width:400px;max-width:calc(100vw - 24px)}
+@media(max-width:1100px){
+ .viewport-fit .workspace.content-grid{grid-template-columns:minmax(0,1fr) minmax(210px,.48fr);gap:10px;padding:10px}
+ .viewport-fit .workspace:is([data-mode=result],[data-mode=review]){grid-template-columns:minmax(0,1fr) minmax(210px,.48fr);grid-template-rows:auto minmax(0,1fr) minmax(0,1fr) minmax(0,.7fr);grid-template-areas:"compose inspector" "result inspector" "studio inspector" "logs logs"}
+ .viewport-fit .workspace:is([data-mode=result],[data-mode=review])[data-compose-open=true]{grid-template-rows:minmax(0,.7fr) minmax(0,1fr) minmax(0,1fr) minmax(0,.7fr)}
+}
+@media(max-width:760px){
+ .viewport-fit .app-header{gap:6px;padding:6px 12px}
+ .viewport-fit .header-actions{gap:6px 10px;justify-content:start}
+ .viewport-fit .theme-choice{gap:4px}
+ .viewport-fit .skin-toolbar{gap:6px}
+ .viewport-fit .workspace.content-grid{grid-template-columns:minmax(0,1fr) minmax(180px,.48fr);gap:8px;padding:8px}
+ .viewport-fit .section-stages>.panel,.viewport-fit .inspector,.viewport-fit .section-result>.panel{padding:8px}
+ .viewport-fit .section-compose>.panel{padding:10px}
+ .viewport-fit .section-logs .decision-records{padding:6px 8px}
+}
+@media(max-height:700px){
+ .viewport-fit .workspace.content-grid{gap:8px;padding:8px}
+ .viewport-fit .workspace-disclosure>summary,.viewport-fit .posting-disclosure>summary{min-height:36px;padding-block:6px}
+ .viewport-fit .section-stages>.panel{padding:8px}
+ .viewport-fit .formal-stage-details>summary{min-height:28px;padding-block:2px}
+ .viewport-fit .decision-records h2{font-size:.875rem}
+}

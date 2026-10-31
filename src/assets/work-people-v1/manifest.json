@@ -1,0 +1,62 @@
+{
+  "version": "work-people-v1",
+  "columns": 4,
+  "rows": [
+    "IDLE",
+    "RUNNING",
+    "AWAITING_APPROVAL",
+    "SUCCEEDED",
+    "FAILED",
+    "UNKNOWN"
+  ],
+  "characters": [
+    {
+      "role": "planner",
+      "file": "src/assets/work-people-v1/planner.png",
+      "sha256": "630071efaf2d2b6f7e8199150ce6366093b09de5d1e6ab778d75f7edc1aa71be"
+    },
+    {
+      "role": "writer",
+      "file": "src/assets/work-people-v1/writer.png",
+      "sha256": "cac662b0aaf7d2e0fa0f2dac819e41dff6028b736bc99d45fef88aff707240d7"
+    },
+    {
+      "role": "verifier",
+      "file": "src/assets/work-people-v1/verifier.png",
+      "sha256": "d71202a11299cb5616de0be91343e2918ccc7caf35734948d2ed009955933fc1"
+    },
+    {
+      "role": "reviewer",
+      "file": "src/assets/work-people-v1/reviewer.png",
+      "sha256": "449840fe69a7e2f5435e64f1f0c20ae4dccff0af587157c825cf31e973c60d18"
+    },
+    {
+      "role": "archivist",
+      "file": "src/assets/work-people-v1/archivist.png",
+      "sha256": "ecd4950c6ad696098ea2215932cc2c90c3c0266cd505544a6d47e87c9cdc090e"
+    }
+  ],
+  "provenance": "Original project-authored pixel artwork; no third-party image inputs.",
+  "license": "See CHARACTER_ASSETS_LICENSE.md. Separately licensed from Apache-2.0 source code.",
+  "frame": [
+    48,
+    72
+  ],
+  "sheet": [
+    192,
+    432
+  ],
+  "display": [
+    96,
+    144
+  ],
+  "compactDisplay": [
+    48,
+    72
+  ],
+  "method": "Original integer-coordinate Python/Pillow pixel drawing at 48x72; no image inputs",
+  "composition": {
+    "female": 3,
+    "male": 2
+  }
+}

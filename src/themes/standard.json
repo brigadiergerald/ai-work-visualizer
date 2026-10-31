@@ -1,0 +1,7 @@
+{
+ "schemaVersion":1,"id":"free-standard","version":"1.0.0","name":"標準 / Paper",
+ "colors":{"background":"#f5f6f8","surface":"#ffffff","text":"#18232f","muted":"#526172","border":"#d1d9e2","accent":"#2155cd","onAccent":"#ffffff"},
+ "font":"system","background":"solid","layout":{"variant":"split","sections":["compose","stages","artifacts","logs"]},
+ "assets":{"icon":"document","character":null},
+ "animations":{"queued":"none","running":"pulse","awaiting_approval":"outline","paused":"none","completed":"none","failed":"none","cancelled":"none","unknown":"outline"}
+}

@@ -1,0 +1,668 @@
+{
+  "awaiting": {
+    "connection": {
+      "account": "",
+      "agentId": "codex",
+      "error": null,
+      "state": "disconnected",
+      "version": ""
+    },
+    "contractVersion": 1,
+    "currentJobId": "e3f24fd4-6215-51d5-8c5b-f052943aa6de",
+    "dataPath": "C:/example/ai-work-visualizer/open-core-approved-710d9449-8812-5a68-bd3a-eb1ca4ba956f",
+    "jobs": [
+      {
+        "activeStageId": "sns_review",
+        "agent": {
+          "id": "codex",
+          "label": "Codex"
+        },
+        "approvals": [
+          {
+            "details": "文章案の実内容とhashを確認し、納品を承認または停止する。外部公開の承認ではない。",
+            "id": "db0e817a-6c1e-508a-a580-22d9c8756cce",
+            "kind": "content",
+            "questions": [],
+            "responsePending": false,
+            "title": "文章案を確認して納品を承認"
+          }
+        ],
+        "artifacts": [
+          {
+            "bytes": 198,
+            "integrity": "verified",
+            "name": "plan.json",
+            "path": "C:/example/ai-work-visualizer/plan.json",
+            "role": "text",
+            "sha256": "bee64579fc5a566eda949c38b5b4a5f6f083a9e5575760cc226f337b4af70ecc"
+          },
+          {
+            "bytes": 192,
+            "integrity": "verified",
+            "name": "post.txt",
+            "path": "C:/example/ai-work-visualizer/post.txt",
+            "role": "product",
+            "sha256": "bdb5b5664700e2fc1425cb5480ae91b301b9feb7586f641c66daf856b38e39ea"
+          },
+          {
+            "bytes": 239,
+            "integrity": "verified",
+            "name": "bundle.json",
+            "path": "C:/example/ai-work-visualizer/bundle.json",
+            "role": "text",
+            "sha256": "797345db9bd8c1b359aa3eba7d0640e4a6ab83720adcd7c305203bb2f20f5442"
+          },
+          {
+            "bytes": 505,
+            "integrity": "verified",
+            "name": "quality.json",
+            "path": "C:/example/ai-work-visualizer/quality.json",
+            "role": "quality",
+            "sha256": "4d62983c0ef5276fa6e427aad2f8c3bc43c3f26075c23bce9ed1b30c9d414e24"
+          }
+        ],
+        "endedAt": null,
+        "id": "e3f24fd4-6215-51d5-8c5b-f052943aa6de",
+        "instruction": "Threads向けに、小さく始める大切さを文章案にしてください。私が昨日メモを一行だけ書いた実体験を入れてください。外部投稿は不要です。",
+        "logs": [
+          {
+            "at": "2026-10-27T11:52:24.814Z",
+            "code": "job_started",
+            "id": "667b7d68-ac50-5358-a962-bc24efae5e11",
+            "message": "クエストを開始しました。1つのCodex環境で工程を順番に実行します。",
+            "stageId": null,
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:24.829Z",
+            "code": "node_started",
+            "id": "b7aa3125-84ae-5125-a9c0-932046324dec",
+            "message": "Codex：調査・要件整理を開始。",
+            "stageId": "plan",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:24.937Z",
+            "code": "thread_started",
+            "id": "47b9970f-bb5a-52cc-8685-9b384927ee4f",
+            "message": "このクエスト専用のCodexスレッドを開始しました。",
+            "stageId": null,
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:24.957Z",
+            "code": "turn_dispatch",
+            "id": "f1c561c9-7431-5732-b5aa-6bbd713c039a",
+            "message": "turn/startの送信を開始。応答不明時は再送しません。",
+            "stageId": "plan",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:24.971Z",
+            "code": "turn_completed",
+            "id": "95fe8223-a69a-5f29-84d1-1d677983bd0b",
+            "message": "Codex正式結果：completed",
+            "stageId": "plan",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:24.997Z",
+            "code": "node_completed",
+            "id": "3117f062-ffa2-566d-8646-fa12f60a2af1",
+            "message": "調査・要件整理が完了しました。",
+            "stageId": "plan",
+            "state": "completed"
+          },
+          {
+            "at": "2026-10-27T11:52:25.007Z",
+            "code": "handoff_started",
+            "id": "64774ec1-e459-565c-97a8-1d792a409c47",
+            "message": "入力成果物を受け渡しています。",
+            "stageId": "writing",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.016Z",
+            "code": "handoff_received",
+            "id": "ca3e3742-e723-570f-8feb-73a384d14f35",
+            "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+            "stageId": "writing",
+            "state": "queued"
+          },
+          {
+            "at": "2026-10-27T11:52:25.026Z",
+            "code": "node_started",
+            "id": "4867eb20-3fc9-56c8-a4fe-7dbd14a05955",
+            "message": "Codex：SNS文章案の作成を開始。",
+            "stageId": "writing",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.036Z",
+            "code": "turn_dispatch",
+            "id": "a1cc4b12-4f64-54f0-91eb-4bc5ef708c52",
+            "message": "turn/startの送信を開始。応答不明時は再送しません。",
+            "stageId": "writing",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.052Z",
+            "code": "turn_completed",
+            "id": "42639201-6d07-51a9-94d5-baaf288b6fe1",
+            "message": "Codex正式結果：completed",
+            "stageId": "writing",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.090Z",
+            "code": "node_completed",
+            "id": "eedcbfe0-3aed-5b6c-bbad-04b40b1f1c3e",
+            "message": "SNS文章案の作成が完了しました。",
+            "stageId": "writing",
+            "state": "completed"
+          },
+          {
+            "at": "2026-10-27T11:52:25.102Z",
+            "code": "handoff_started",
+            "id": "03eac040-1f3d-5446-887a-91ed240cf44b",
+            "message": "入力成果物を受け渡しています。",
+            "stageId": "qa",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.113Z",
+            "code": "handoff_received",
+            "id": "4217d33d-aead-530d-a97f-201d44c585a9",
+            "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+            "stageId": "qa",
+            "state": "queued"
+          },
+          {
+            "at": "2026-10-27T11:52:25.125Z",
+            "code": "node_started",
+            "id": "92f8536e-8ee6-5d4c-8c76-8334e2df316a",
+            "message": "検証・保存：品質検査・修正確認を開始。",
+            "stageId": "qa",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.152Z",
+            "code": "product_quality_checked",
+            "id": "47bf03a9-a8a1-579f-92e9-d6e5263c0b1c",
+            "message": "完成品の要件と実hashを照合。画面表示はNOT_VERIFIEDです。",
+            "stageId": "qa",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.165Z",
+            "code": "node_completed",
+            "id": "9cb66b7a-86a9-5dc5-989e-1c0cf862ef39",
+            "message": "品質検査・修正確認が完了しました。",
+            "stageId": "qa",
+            "state": "completed"
+          },
+          {
+            "at": "2026-10-27T11:52:25.176Z",
+            "code": "handoff_started",
+            "id": "c106e3b7-0546-5238-831e-45d9e0a5efaf",
+            "message": "入力成果物を受け渡しています。",
+            "stageId": "sns_review",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.186Z",
+            "code": "handoff_received",
+            "id": "b0095673-c8f4-5a46-b502-295ba1b7a889",
+            "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+            "stageId": "sns_review",
+            "state": "queued"
+          },
+          {
+            "at": "2026-10-27T11:52:25.196Z",
+            "code": "node_started",
+            "id": "2c45c9b0-275a-5e59-b529-ba054189d9b8",
+            "message": "人間：内容確認・人間の承認を開始。",
+            "stageId": "sns_review",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.213Z",
+            "code": "content_review_requested",
+            "id": "a163c2e4-7742-5c15-a003-d81f84b6fd2c",
+            "message": "文章案の内容確認を待っています。外部への投稿は行っていません。",
+            "stageId": "sns_review",
+            "state": "awaiting_approval"
+          }
+        ],
+        "mode": "real",
+        "outputDirectory": "C:/example/ai-work-visualizer/e3f24fd4-6215-51d5-8c5b-f052943aa6de",
+        "publication": "NOT_PERFORMED",
+        "quality": {
+          "display": "NOT_VERIFIED",
+          "filesVerified": true,
+          "machine": "PASS"
+        },
+        "recovery": {
+          "localReview": true,
+          "message": "",
+          "recorded": false,
+          "required": false
+        },
+        "stages": [
+          {
+            "error": null,
+            "executor": "agent",
+            "id": "plan",
+            "label": "調査・要件整理",
+            "state": "completed"
+          },
+          {
+            "error": null,
+            "executor": "agent",
+            "id": "writing",
+            "label": "SNS文章案の作成",
+            "state": "completed"
+          },
+          {
+            "error": null,
+            "executor": "host",
+            "id": "qa",
+            "label": "品質検査・修正確認",
+            "state": "completed"
+          },
+          {
+            "error": null,
+            "executor": "human",
+            "id": "sns_review",
+            "label": "内容確認・人間の承認",
+            "state": "awaiting_approval"
+          },
+          {
+            "error": null,
+            "executor": "host",
+            "id": "delivery",
+            "label": "保存・納品",
+            "state": "queued"
+          }
+        ],
+        "startedAt": "2026-10-27T11:52:24.814Z",
+        "state": "awaiting_approval",
+        "workflowId": "sns-draft-v1",
+        "workflowName": "SNS投稿文の作成・投稿準備"
+      }
+    ],
+    "mode": "real",
+    "settings": {
+      "approvalPolicy": "on-request",
+      "codexPath": "",
+      "inputPaths": [],
+      "model": "",
+      "outputRoot": "C:/example/ai-work-visualizer/output",
+      "setupComplete": true,
+      "workRoot": "C:/example/ai-work-visualizer/open-core-approved-710d9449-8812-5a68-bd3a-eb1ca4ba956f"
+    }
+  },
+  "classification": "OFFLINE_FIXTURE",
+  "completed": {
+    "connection": {
+      "account": "",
+      "agentId": "codex",
+      "error": null,
+      "state": "disconnected",
+      "version": ""
+    },
+    "contractVersion": 1,
+    "currentJobId": "e3f24fd4-6215-51d5-8c5b-f052943aa6de",
+    "dataPath": "C:/example/ai-work-visualizer/open-core-approved-710d9449-8812-5a68-bd3a-eb1ca4ba956f",
+    "jobs": [
+      {
+        "activeStageId": null,
+        "agent": {
+          "id": "codex",
+          "label": "Codex"
+        },
+        "approvals": [],
+        "artifacts": [
+          {
+            "bytes": 198,
+            "integrity": "verified",
+            "name": "plan.json",
+            "path": "C:/example/ai-work-visualizer/plan.json",
+            "role": "text",
+            "sha256": "bee64579fc5a566eda949c38b5b4a5f6f083a9e5575760cc226f337b4af70ecc"
+          },
+          {
+            "bytes": 192,
+            "integrity": "verified",
+            "name": "post.txt",
+            "path": "C:/example/ai-work-visualizer/post.txt",
+            "role": "product",
+            "sha256": "bdb5b5664700e2fc1425cb5480ae91b301b9feb7586f641c66daf856b38e39ea"
+          },
+          {
+            "bytes": 239,
+            "integrity": "verified",
+            "name": "bundle.json",
+            "path": "C:/example/ai-work-visualizer/bundle.json",
+            "role": "text",
+            "sha256": "797345db9bd8c1b359aa3eba7d0640e4a6ab83720adcd7c305203bb2f20f5442"
+          },
+          {
+            "bytes": 505,
+            "integrity": "verified",
+            "name": "quality.json",
+            "path": "C:/example/ai-work-visualizer/quality.json",
+            "role": "quality",
+            "sha256": "4d62983c0ef5276fa6e427aad2f8c3bc43c3f26075c23bce9ed1b30c9d414e24"
+          },
+          {
+            "bytes": 329,
+            "integrity": "verified",
+            "name": "review.json",
+            "path": "C:/example/ai-work-visualizer/review.json",
+            "role": "review",
+            "sha256": "4b9ad5d762bdd74c153e12bf2806628736ec4966fdbe0e87a82678b0945dcd49"
+          },
+          {
+            "bytes": 2434,
+            "integrity": "verified",
+            "name": "manifest.json",
+            "path": "C:/example/ai-work-visualizer/manifest.json",
+            "role": "manifest",
+            "sha256": "ec4a96cba018ee3c0a0c2a564ae67e85f91c9a7653e1fff483a5767bff52b659"
+          }
+        ],
+        "endedAt": "2026-10-27T11:52:25.370Z",
+        "id": "e3f24fd4-6215-51d5-8c5b-f052943aa6de",
+        "instruction": "Threads向けに、小さく始める大切さを文章案にしてください。私が昨日メモを一行だけ書いた実体験を入れてください。外部投稿は不要です。",
+        "logs": [
+          {
+            "at": "2026-10-27T11:52:24.814Z",
+            "code": "job_started",
+            "id": "667b7d68-ac50-5358-a962-bc24efae5e11",
+            "message": "クエストを開始しました。1つのCodex環境で工程を順番に実行します。",
+            "stageId": null,
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:24.829Z",
+            "code": "node_started",
+            "id": "b7aa3125-84ae-5125-a9c0-932046324dec",
+            "message": "Codex：調査・要件整理を開始。",
+            "stageId": "plan",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:24.937Z",
+            "code": "thread_started",
+            "id": "47b9970f-bb5a-52cc-8685-9b384927ee4f",
+            "message": "このクエスト専用のCodexスレッドを開始しました。",
+            "stageId": null,
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:24.957Z",
+            "code": "turn_dispatch",
+            "id": "f1c561c9-7431-5732-b5aa-6bbd713c039a",
+            "message": "turn/startの送信を開始。応答不明時は再送しません。",
+            "stageId": "plan",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:24.971Z",
+            "code": "turn_completed",
+            "id": "95fe8223-a69a-5f29-84d1-1d677983bd0b",
+            "message": "Codex正式結果：completed",
+            "stageId": "plan",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:24.997Z",
+            "code": "node_completed",
+            "id": "3117f062-ffa2-566d-8646-fa12f60a2af1",
+            "message": "調査・要件整理が完了しました。",
+            "stageId": "plan",
+            "state": "completed"
+          },
+          {
+            "at": "2026-10-27T11:52:25.007Z",
+            "code": "handoff_started",
+            "id": "64774ec1-e459-565c-97a8-1d792a409c47",
+            "message": "入力成果物を受け渡しています。",
+            "stageId": "writing",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.016Z",
+            "code": "handoff_received",
+            "id": "ca3e3742-e723-570f-8feb-73a384d14f35",
+            "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+            "stageId": "writing",
+            "state": "queued"
+          },
+          {
+            "at": "2026-10-27T11:52:25.026Z",
+            "code": "node_started",
+            "id": "4867eb20-3fc9-56c8-a4fe-7dbd14a05955",
+            "message": "Codex：SNS文章案の作成を開始。",
+            "stageId": "writing",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.036Z",
+            "code": "turn_dispatch",
+            "id": "a1cc4b12-4f64-54f0-91eb-4bc5ef708c52",
+            "message": "turn/startの送信を開始。応答不明時は再送しません。",
+            "stageId": "writing",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.052Z",
+            "code": "turn_completed",
+            "id": "42639201-6d07-51a9-94d5-baaf288b6fe1",
+            "message": "Codex正式結果：completed",
+            "stageId": "writing",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.090Z",
+            "code": "node_completed",
+            "id": "eedcbfe0-3aed-5b6c-bbad-04b40b1f1c3e",
+            "message": "SNS文章案の作成が完了しました。",
+            "stageId": "writing",
+            "state": "completed"
+          },
+          {
+            "at": "2026-10-27T11:52:25.102Z",
+            "code": "handoff_started",
+            "id": "03eac040-1f3d-5446-887a-91ed240cf44b",
+            "message": "入力成果物を受け渡しています。",
+            "stageId": "qa",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.113Z",
+            "code": "handoff_received",
+            "id": "4217d33d-aead-530d-a97f-201d44c585a9",
+            "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+            "stageId": "qa",
+            "state": "queued"
+          },
+          {
+            "at": "2026-10-27T11:52:25.125Z",
+            "code": "node_started",
+            "id": "92f8536e-8ee6-5d4c-8c76-8334e2df316a",
+            "message": "検証・保存：品質検査・修正確認を開始。",
+            "stageId": "qa",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.152Z",
+            "code": "product_quality_checked",
+            "id": "47bf03a9-a8a1-579f-92e9-d6e5263c0b1c",
+            "message": "完成品の要件と実hashを照合。画面表示はNOT_VERIFIEDです。",
+            "stageId": "qa",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.165Z",
+            "code": "node_completed",
+            "id": "9cb66b7a-86a9-5dc5-989e-1c0cf862ef39",
+            "message": "品質検査・修正確認が完了しました。",
+            "stageId": "qa",
+            "state": "completed"
+          },
+          {
+            "at": "2026-10-27T11:52:25.176Z",
+            "code": "handoff_started",
+            "id": "c106e3b7-0546-5238-831e-45d9e0a5efaf",
+            "message": "入力成果物を受け渡しています。",
+            "stageId": "sns_review",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.186Z",
+            "code": "handoff_received",
+            "id": "b0095673-c8f4-5a46-b502-295ba1b7a889",
+            "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+            "stageId": "sns_review",
+            "state": "queued"
+          },
+          {
+            "at": "2026-10-27T11:52:25.196Z",
+            "code": "node_started",
+            "id": "2c45c9b0-275a-5e59-b529-ba054189d9b8",
+            "message": "人間：内容確認・人間の承認を開始。",
+            "stageId": "sns_review",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.213Z",
+            "code": "content_review_requested",
+            "id": "a163c2e4-7742-5c15-a003-d81f84b6fd2c",
+            "message": "文章案の内容確認を待っています。外部への投稿は行っていません。",
+            "stageId": "sns_review",
+            "state": "awaiting_approval"
+          },
+          {
+            "at": "2026-10-27T11:52:25.275Z",
+            "code": "content_review_answered",
+            "id": "13678384-912f-578c-81b0-d510977ec9ce",
+            "message": "文章案の納品確認: accept。外部投稿なし。",
+            "stageId": "sns_review",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.298Z",
+            "code": "handoff_started",
+            "id": "e02400dc-6079-5f5b-8252-b28749dc4cf0",
+            "message": "入力成果物を受け渡しています。",
+            "stageId": "delivery",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.310Z",
+            "code": "handoff_received",
+            "id": "daceaba1-326a-576c-87e4-945feb547e7f",
+            "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+            "stageId": "delivery",
+            "state": "queued"
+          },
+          {
+            "at": "2026-10-27T11:52:25.320Z",
+            "code": "node_started",
+            "id": "3aa3a70f-2ae2-58bb-a783-13a459f8f743",
+            "message": "検証・保存：保存・納品を開始。",
+            "stageId": "delivery",
+            "state": "running"
+          },
+          {
+            "at": "2026-10-27T11:52:25.353Z",
+            "code": "node_completed",
+            "id": "01a4c92c-9c0d-51ed-b807-df24595bac25",
+            "message": "保存・納品が完了しました。",
+            "stageId": "delivery",
+            "state": "completed"
+          },
+          {
+            "at": "2026-10-27T11:52:25.370Z",
+            "code": "job_completed",
+            "id": "4a2e7734-4a84-5600-9025-884eeb65cf85",
+            "message": "工程と登録ファイルの検査が終了しました。完成品の表示確認と実運用E2Eは別判定です。",
+            "stageId": null,
+            "state": "completed"
+          }
+        ],
+        "mode": "real",
+        "outputDirectory": "C:/example/ai-work-visualizer/e3f24fd4-6215-51d5-8c5b-f052943aa6de",
+        "publication": "NOT_PERFORMED",
+        "quality": {
+          "display": "NOT_VERIFIED",
+          "filesVerified": true,
+          "machine": "PASS"
+        },
+        "recovery": {
+          "localReview": false,
+          "message": "",
+          "recorded": false,
+          "required": false
+        },
+        "stages": [
+          {
+            "error": null,
+            "executor": "agent",
+            "id": "plan",
+            "label": "調査・要件整理",
+            "state": "completed"
+          },
+          {
+            "error": null,
+            "executor": "agent",
+            "id": "writing",
+            "label": "SNS文章案の作成",
+            "state": "completed"
+          },
+          {
+            "error": null,
+            "executor": "host",
+            "id": "qa",
+            "label": "品質検査・修正確認",
+            "state": "completed"
+          },
+          {
+            "error": null,
+            "executor": "human",
+            "id": "sns_review",
+            "label": "内容確認・人間の承認",
+            "state": "completed"
+          },
+          {
+            "error": null,
+            "executor": "host",
+            "id": "delivery",
+            "label": "保存・納品",
+            "state": "completed"
+          }
+        ],
+        "startedAt": "2026-10-27T11:52:24.814Z",
+        "state": "completed",
+        "workflowId": "sns-draft-v1",
+        "workflowName": "SNS投稿文の作成・投稿準備"
+      }
+    ],
+    "mode": "real",
+    "settings": {
+      "approvalPolicy": "on-request",
+      "codexPath": "",
+      "inputPaths": [],
+      "model": "",
+      "outputRoot": "C:/example/ai-work-visualizer/output",
+      "setupComplete": true,
+      "workRoot": "C:/example/ai-work-visualizer/open-core-approved-710d9449-8812-5a68-bd3a-eb1ca4ba956f"
+    }
+  },
+  "text": {
+    "sha256": "bdb5b5664700e2fc1425cb5480ae91b301b9feb7586f641c66daf856b38e39ea",
+    "text": "まあ、まずは小さく始める。\n昨日はメモを一行だけ書いた、と共有してくれましたね。そこからで十分です。\n今日はどんな一行にしますか？\n"
+  }
+}

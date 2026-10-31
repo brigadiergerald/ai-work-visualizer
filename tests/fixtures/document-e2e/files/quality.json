@@ -1,0 +1,11 @@
+{
+  "artifactSha256": "d2ae27b891043bc49bf09d938ee521f941488082040e61bd7e5264a504c95d57",
+  "machineStatus": "PASS",
+  "displayStatus": "NOT_VERIFIED",
+  "checkedAt": "2026-10-27T08:20:03.465Z",
+  "checks": [
+    "document format and restricted content",
+    "all planned requirements and independent quoted original copy",
+    "semantic/user-value review and display remain separate"
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "workflowId": "guild-codex-only",
+  "workflowName": "Codexで仕事を完成させる",
+  "nodes": [
+    {
+      "nodeId": "research",
+      "role": "調査・要件整理",
+      "label": "調査・要件整理",
+      "spriteKey": "scholar",
+      "executor": "codex",
+      "workInstruction": "ユーザー指示の目的に必要な情報を整理する。確認済み事実と不明点を区別し、後工程が使える調査メモを日本語で作成する。",
+      "dependencies": [],
+      "inputArtifacts": [],
+      "outputArtifacts": [
+        "research.md"
+      ]
+    },
+    {
+      "nodeId": "writing",
+      "role": "計画・設計",
+      "label": "計画・設計",
+      "spriteKey": "scribe",
+      "executor": "codex",
+      "workInstruction": "調査結果とユーザーの指示に沿って読みやすい本文を日本語で作成する。未確認の経験や事実を創作しない。",
+      "dependencies": [
+        "research"
+      ],
+      "inputArtifacts": [
+        "research.md"
+      ],
+      "outputArtifacts": [
+        "writing.md"
+      ]
+    },
+    {
+      "nodeId": "image",
+      "role": "制作・実装",
+      "label": "制作・実装",
+      "spriteKey": "artist",
+      "executor": "codex",
+      "workInstruction": "計画とユーザー原文に従い、完成品を作成する。対応する成果物をローカルへ保存し、未確認の実行や外部操作を装わない。",
+      "dependencies": [
+        "writing"
+      ],
+      "inputArtifacts": [
+        "writing.md"
+      ],
+      "outputArtifacts": [
+        "product.md"
+      ]
+    },
+    {
+      "nodeId": "review",
+      "role": "品質検査・修正",
+      "label": "品質検査・修正",
+      "spriteKey": "analyst",
+      "executor": "codex",
+      "workInstruction": "前工程の本文と登録済み素材を確認し、正確性、一貫性、未解決点を日本語でレビューする。画像が目視できない場合はその限界を明記する。",
+      "dependencies": [
+        "image"
+      ],
+      "inputArtifacts": [
+        "writing.md"
+      ],
+      "outputArtifacts": [
+        "review.md"
+      ]
+    },
+    {
+      "nodeId": "delivery",
+      "role": "保存・納品",
+      "label": "保存・納品",
+      "spriteKey": "messenger",
+      "executor": "save",
+      "workInstruction": "成果物の所属・実ファイル・サイズ・SHA-256を確認しマニフェストを保存する。公開は実行しない。",
+      "dependencies": [
+        "review"
+      ],
+      "inputArtifacts": [
+        "review.md"
+      ],
+      "outputArtifacts": [
+        "manifest.json"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "research-writing",
+      "fromNodeId": "research",
+      "toNodeId": "writing"
+    },
+    {
+      "edgeId": "writing-image",
+      "fromNodeId": "writing",
+      "toNodeId": "image"
+    },
+    {
+      "edgeId": "image-review",
+      "fromNodeId": "image",
+      "toNodeId": "review"
+    },
+    {
+      "edgeId": "review-delivery",
+      "fromNodeId": "review",
+      "toNodeId": "delivery"
+    }
+  ]
+}

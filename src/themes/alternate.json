@@ -1,0 +1,7 @@
+{
+ "schemaVersion":1,"id":"free-mint-test","version":"1.0.0","name":"検証用 / Mint",
+ "colors":{"background":"#edf6f1","surface":"#ffffff","text":"#153d32","muted":"#466258","border":"#bad5c7","accent":"#166347","onAccent":"#ffffff"},
+ "font":"system-serif","background":"grid","layout":{"variant":"stacked","sections":["compose","stages","artifacts","logs"]},
+ "assets":{"icon":"leaf","character":null},
+ "animations":{"queued":"none","running":"pulse","awaiting_approval":"outline","paused":"none","completed":"none","failed":"none","cancelled":"none","unknown":"outline"}
+}

@@ -1,0 +1,913 @@
+{
+  "workflow": {
+    "workflowId": "guild-standard",
+    "workflowName": "コンテンツ制作の冒険",
+    "nodes": [
+      {
+        "nodeId": "research",
+        "role": "調査AI",
+        "label": "調査",
+        "spriteKey": "scholar",
+        "workInstruction": "ユーザー指示の目的に必要な情報を整理する。確認済み事実と不明点を区別し、後工程が使える調査メモを日本語で作成する。",
+        "dependencies": [],
+        "inputArtifacts": [],
+        "outputArtifacts": [
+          "research.md"
+        ],
+        "executor": "codex"
+      },
+      {
+        "nodeId": "writing",
+        "role": "執筆AI",
+        "label": "執筆",
+        "spriteKey": "scribe",
+        "workInstruction": "調査結果とユーザーの指示に沿って読みやすい本文を日本語で作成する。未確認の経験や事実を創作しない。",
+        "dependencies": [
+          "research"
+        ],
+        "inputArtifacts": [
+          "research.md"
+        ],
+        "outputArtifacts": [
+          "writing.md"
+        ],
+        "executor": "codex"
+      },
+      {
+        "nodeId": "image",
+        "role": "画像AI",
+        "label": "画像素材",
+        "spriteKey": "artist",
+        "workInstruction": "通常ChatGPT・公式Edgeで制作した画像を用意し、ローカルファイルの絶対パスを登録する。有料APIや別の画像生成器には切り替えない。",
+        "dependencies": [
+          "writing"
+        ],
+        "inputArtifacts": [
+          "writing.md"
+        ],
+        "outputArtifacts": [],
+        "executor": "manual"
+      },
+      {
+        "nodeId": "review",
+        "role": "分析AI",
+        "label": "分析・確認",
+        "spriteKey": "analyst",
+        "workInstruction": "前工程の本文と登録済み素材を確認し、正確性、一貫性、未解決点を日本語でレビューする。画像が目視できない場合はその限界を明記する。",
+        "dependencies": [
+          "image"
+        ],
+        "inputArtifacts": [
+          "writing.md"
+        ],
+        "outputArtifacts": [
+          "review.md"
+        ],
+        "executor": "codex"
+      },
+      {
+        "nodeId": "delivery",
+        "role": "投稿AI",
+        "label": "保存・投稿準備",
+        "spriteKey": "messenger",
+        "workInstruction": "成果物の実ファイル、サイズ、SHA-256を記載したマニフェストをジョブフォルダへ保存する。SNS投稿、予約、外部公開は実行しない。",
+        "dependencies": [
+          "review"
+        ],
+        "inputArtifacts": [
+          "review.md"
+        ],
+        "outputArtifacts": [
+          "manifest.json"
+        ],
+        "executor": "save"
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": "research-writing",
+        "fromNodeId": "research",
+        "toNodeId": "writing"
+      },
+      {
+        "edgeId": "writing-image",
+        "fromNodeId": "writing",
+        "toNodeId": "image"
+      },
+      {
+        "edgeId": "image-review",
+        "fromNodeId": "image",
+        "toNodeId": "review"
+      },
+      {
+        "edgeId": "review-delivery",
+        "fromNodeId": "review",
+        "toNodeId": "delivery"
+      }
+    ]
+  },
+  "projects": [
+    {
+      "name": "はじまりのギルド",
+      "path": "C:/example/ai-work-visualizer/workspace"
+    }
+  ],
+  "project": {
+    "name": "はじまりのギルド",
+    "path": "C:/example/ai-work-visualizer/workspace"
+  },
+  "mode": "real",
+  "connection": {
+    "status": "connected",
+    "version": "codex-cli 0.164.0-alpha.11.1",
+    "account": "Example Codex account",
+    "error": null
+  },
+  "job": {
+    "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+    "workflowId": "codex-document-v1",
+    "workflow": {
+      "workflowId": "codex-document-v1",
+      "workflowName": "文書の実務制作（Codex）",
+      "nodes": [
+        {
+          "nodeId": "plan",
+          "role": "Codex",
+          "label": "要件・工程決定",
+          "spriteKey": "scholar",
+          "workInstruction": "ユーザー原文から目的・対象者・制約・受入条件を決める。JSONのみで {\"title\":文字列,\"requirements\":[完成文書へそのまま含める必須文言],\"checklist\":[本文に含める項目、不要なら空配列]}。requirementsは1件以上。鍵括弧内の指定文言は原文どおり含める。事実・素材の不足はUNKNOWNとし創作しない。外部調査、公開、課金、画像制作は実行しない。重大な不足で作れない場合はJSONを創作せず不足を報告する（ホストが停止する）。",
+          "dependencies": [],
+          "inputArtifacts": [],
+          "outputArtifacts": [
+            "plan.json"
+          ],
+          "executor": "codex"
+        },
+        {
+          "nodeId": "writing",
+          "role": "Codex",
+          "label": "文書制作",
+          "spriteKey": "scribe",
+          "workInstruction": "ユーザー原文の目的・対象者・制約を満たす完成文書を作成する。日本語Markdown本文だけ。HTML、外部画像、コードブロックは禁止。 plan.jsonのrequirements/checklistの全項目を完成文書にそのまま含める。不明な実体験・数値・引用・外部事実を創作しない。",
+          "dependencies": [
+            "plan"
+          ],
+          "inputArtifacts": [
+            "plan.json"
+          ],
+          "outputArtifacts": [
+            "document.md"
+          ],
+          "executor": "codex"
+        },
+        {
+          "nodeId": "qa",
+          "role": "Codexホスト",
+          "label": "完成品QA",
+          "spriteKey": "analyst",
+          "workInstruction": "確定要件・原文の指定文言・形式・安全性・実file/hashを検査。意味内容と表示の実務QAは別判定。",
+          "dependencies": [
+            "writing"
+          ],
+          "inputArtifacts": [
+            "document.md",
+            "plan.json"
+          ],
+          "outputArtifacts": [
+            "quality.json"
+          ],
+          "executor": "quality"
+        },
+        {
+          "nodeId": "delivery",
+          "role": "Codexホスト",
+          "label": "完成品保存",
+          "spriteKey": "messenger",
+          "workInstruction": "完成HTMLとhashを再照合して保存。manifestだけを完成品にしない。",
+          "dependencies": [
+            "qa"
+          ],
+          "inputArtifacts": [
+            "document.md",
+            "quality.json"
+          ],
+          "outputArtifacts": [
+            "manifest.json"
+          ],
+          "executor": "save"
+        }
+      ],
+      "edges": [
+        {
+          "edgeId": "plan-writing",
+          "fromNodeId": "plan",
+          "toNodeId": "writing"
+        },
+        {
+          "edgeId": "writing-qa",
+          "fromNodeId": "writing",
+          "toNodeId": "qa"
+        },
+        {
+          "edgeId": "qa-delivery",
+          "fromNodeId": "qa",
+          "toNodeId": "delivery"
+        }
+      ]
+    },
+    "status": "completed",
+    "mode": "real",
+    "instruction": "個人制作者向けの「制作物の納品前チェックリスト」を、日本語のチェックボックス付きMarkdown（.md）文書として完成させてください。\n一般的なデジタル制作物を対象にし、特定サービスの仕様について根拠のない記述を追加しないでください。\n次の7項目をそれぞれ見出しとして原文どおり含め、各項目に実際に確認できる具体的なチェックボックスを付けてください。\n1. 「ファイルの存在確認」\n2. 「ファイル名と形式の確認」\n3. 「文章や画像の内容確認」\n4. 「外部参照・リンクの確認」\n5. 「保存先とバックアップの確認」\n6. 「納品前の最終確認」\n7. 「問題発見時の対応手順」\n単に見出しを並べるだけでなく、一人の制作者が納品前に上から順に確認して使える文書にしてください。該当しない項目の扱いと、問題を見つけたときの納品保留・記録・修正・再確認の流れを明確にしてください。\n今回の仕事はチェックリストの文章制作だけです。画像生成は不要。公開不要、外部調査不要、個人情報不要。外部参照・リンクは確認手順の説明であり、実際の外部アクセスや架空のURLの追加は不要です。\n出力は完成したMarkdown本文のみ。コードブロックや制作過程の説明は含めないでください。\n",
+    "startedAt": "2026-10-27T07:53:58.233Z",
+    "endedAt": "2026-10-27T08:20:03.522Z",
+    "workspace": "C:/example/ai-work-visualizer/6f00757c-4cff-5a90-a6f9-8364637a92bf",
+    "threadId": "5132b214-7142-57e7-aa71-57a961843f38",
+    "turnId": null,
+    "activeNodeId": null,
+    "nodes": {
+      "qa": {
+        "status": "completed",
+        "startedAt": "2026-10-27T08:20:03.456Z",
+        "endedAt": "2026-10-27T08:20:03.480Z",
+        "output": "",
+        "error": null,
+        "attempt": 1
+      },
+      "writing": {
+        "status": "completed",
+        "startedAt": "2026-10-27T08:18:44.906Z",
+        "endedAt": "2026-10-27T08:20:03.441Z",
+        "output": "# 制作物の納品前チェックリスト\n\n対象・目的：個人制作者が、一般的なデジタル制作物の納品前に、上から順に確認して使える文書にする。\n\n構成・形式：7つの必須文言を原文どおりの見出しとして指定順に配置し、各見出しに実際に確認できる具体的なMarkdownチェックボックス「- [ ]」を付ける。\n\n使い方：確認を終えた項目だけチェックし、未確認の項目は未チェックで残す。\n\n該当しない項目：項目の横に「該当なし」と理由を記録する。不明・未確認を該当なしとして扱わず、必要な情報が不足する場合はUNKNOWN（未確認）と記録する。\n\n制約：特定サービスの未確認仕様、架空のURL、個人情報、未確認の事実を追加しない。外部参照・リンクは確認手順の説明にとどめ、実際の外部アクセス・外部調査・公開・課金・画像制作は行わない。\n\n最終出力の受入条件：完成文書は日本語のチェックボックス付きMarkdown本文のみとし、コードブロックや制作過程の説明を含めない。\n\n確認の途中で問題を見つけたら、その時点で納品を保留し、「問題発見時の対応手順」へ進んでください。問題がなかった場合、その手順の各項目には「該当なし：問題なし」と記録します。\n\n## ファイルの存在確認\n\n- [ ] ファイルの存在確認：納品予定のファイル一覧と実ファイルを照合し、必要なファイルがすべて揃っているか確認する。\n- [ ] ファイルの存在確認：各ファイルを開き、読み込みエラー、空の内容、欠落したページや素材がないか確認する。\n\n## ファイル名と形式の確認\n\n- [ ] ファイル名と形式の確認：指定がある場合はファイル名・拡張子・形式を指定内容と照合し、実際に開いた内容と形式が対応しているか確認する。\n- [ ] ファイル名と形式の確認：同名の旧版や紛らわしい複製を確認し、納品対象の版を一意に判別できるようにする。\n\n## 文章や画像の内容確認\n\n- [ ] 文章や画像の内容確認：文章の誤字脱字、表記の不統一、数値の不一致、未記入箇所、仮文言を確認する。\n- [ ] 文章や画像の内容確認：画像の抜け、取り違え、意図しない切れや歪み、文字の読みにくさを、実際に開いた表示で確認する。該当する文章・画像がない場合は理由付きの該当なしにする。\n- [ ] 文章や画像の内容確認：制作時の要件と完成内容を照合し、必要な内容の漏れや不要な内容の混入がないか確認する。\n\n## 外部参照・リンクの確認\n\n外部参照・リンクの確認：リンクや参照先がある場合に、表示文言と接続先の対応、参照先の存在、受取人に必要な閲覧権限を確認する手順を記載する。\n\n以下は、リンクを含む制作物を納品する際の確認手順です。\n\n- [ ] 本文や画像に設定されたリンクを確認し、表示文言が示す対象と設定された接続先が一致しているか照合する。\n- [ ] リンク先を開いて意図した内容が表示されるか確認する。参照ファイルがある場合は、そのファイルが存在し、開けるか確認する。\n- [ ] 共有設定などを確認し、受取人に必要な閲覧権限があるか確かめる。確認できない場合はUNKNOWN（未確認）と記録し、納品を保留する。\n- [ ] 外部参照・リンクの確認：参照ファイルや同梱素材へのリンクが、制作者の作業環境だけに依存していないか確認する。リンクがない場合は該当なしを記録する。\n\n## 保存先とバックアップの確認\n\n- [ ] 保存先とバックアップの確認：納品対象の最新版を所定の保存先に保存し、その場所から開き直して内容が維持されているか確認する。\n- [ ] 保存先とバックアップの確認：納品対象のコピーを別の保存場所に確保し、バックアップから必要なファイルを開けるか確認する。\n\n## 納品前の最終確認\n\n- [ ] 納品前の最終確認：実際に渡すフォルダーや圧縮ファイルを開き、必要なファイルが揃い、旧版・作業用ファイル・不要なファイルが混ざっていないか確認する。\n- [ ] 納品前の最終確認：納品先・渡し方・必要な条件を確認する。個別の指定内容は創作せず、不明な必要条件はUNKNOWN（未確認）として納品を保留する。\n- [ ] 納品前の最終確認：すべての確認項目が確認済み、または理由付きの該当なしであり、未解決の問題と未確認事項が残っていないことを納品可の条件にする。\n\n## 問題発見時の対応手順\n\n次の順序で対応します。修正しただけでは納品を再開せず、再確認と最終確認まで行ってください。\n\n- [ ] 問題発見時の対応手順：問題を見つけた時点で納品を保留し、該当ファイル・問題の箇所・症状・影響を記録する。\n- [ ] 問題発見時の対応手順：記録した問題を修正し、修正後のファイルを保存する。修正内容と対象の版を記録する。\n- [ ] 問題発見時の対応手順：修正箇所と影響する項目を再確認し、実際に渡すファイルにも修正が反映されているか確認する。\n- [ ] 問題発見時の対応手順：再確認結果を記録し、問題が解消したら「納品前の最終確認」に戻る。解消していない場合は保留を継続し、記録・修正・再確認を繰り返す。\n\n問題ごとの記録欄：\n\n- 対象ファイル・版：\n- 問題の箇所：\n- 症状・影響：\n- 修正内容：\n- 再確認した項目：\n- 再確認結果：\n- 状態（保留中／最終確認待ち／解消）：",
+        "error": null,
+        "attempt": 1
+      },
+      "plan": {
+        "status": "completed",
+        "startedAt": "2026-10-27T07:53:58.240Z",
+        "endedAt": "2026-10-27T08:18:16.198Z",
+        "output": "{\"title\":\"制作物の納品前チェックリスト\",\"requirements\":[\"ファイルの存在確認\",\"ファイル名と形式の確認\",\"文章や画像の内容確認\",\"外部参照・リンクの確認\",\"保存先とバックアップの確認\",\"納品前の最終確認\",\"問題発見時の対応手順\"],\"checklist\":[\"対象・目的：個人制作者が、一般的なデジタル制作物の納品前に、上から順に確認して使える文書にする。\",\"構成・形式：7つの必須文言を原文どおりの見出しとして指定順に配置し、各見出しに実際に確認できる具体的なMarkdownチェックボックス「- [ ]」を付ける。\",\"使い方：確認を終えた項目だけチェックし、未確認の項目は未チェックで残す。\",\"該当しない項目：項目の横に「該当なし」と理由を記録する。不明・未確認を該当なしとして扱わず、必要な情報が不足する場合はUNKNOWN（未確認）と記録する。\",\"ファイルの存在確認：納品予定のファイル一覧と実ファイルを照合し、必要なファイルがすべて揃っているか確認する。\",\"ファイルの存在確認：各ファイルを開き、読み込みエラー、空の内容、欠落したページや素材がないか確認する。\",\"ファイル名と形式の確認：指定がある場合はファイル名・拡張子・形式を指定内容と照合し、実際に開いた内容と形式が対応しているか確認する。\",\"ファイル名と形式の確認：同名の旧版や紛らわしい複製を確認し、納品対象の版を一意に判別できるようにする。\",\"文章や画像の内容確認：文章の誤字脱字、表記の不統一、数値の不一致、未記入箇所、仮文言を確認する。\",\"文章や画像の内容確認：画像の抜け、取り違え、意図しない切れや歪み、文字の読みにくさを、実際に開いた表示で確認する。該当する文章・画像がない場合は理由付きの該当なしにする。\",\"文章や画像の内容確認：制作時の要件と完成内容を照合し、必要な内容の漏れや不要な内容の混入がないか確認する。\",\"外部参照・リンクの確認：リンクや参照先がある場合に、表示文言と接続先の対応、参照先の存在、受取人に必要な閲覧権限を確認する手順を記載する。\",\"外部参照・リンクの確認：参照ファイルや同梱素材へのリンクが、制作者の作業環境だけに依存していないか確認する。リンクがない場合は該当なしを記録する。\",\"保存先とバックアップの確認：納品対象の最新版を所定の保存先に保存し、その場所から開き直して内容が維持されているか確認する。\",\"保存先とバックアップの確認：納品対象のコピーを別の保存場所に確保し、バックアップから必要なファイルを開けるか確認する。\",\"納品前の最終確認：実際に渡すフォルダーや圧縮ファイルを開き、必要なファイルが揃い、旧版・作業用ファイル・不要なファイルが混ざっていないか確認する。\",\"納品前の最終確認：納品先・渡し方・必要な条件を確認する。個別の指定内容は創作せず、不明な必要条件はUNKNOWN（未確認）として納品を保留する。\",\"納品前の最終確認：すべての確認項目が確認済み、または理由付きの該当なしであり、未解決の問題と未確認事項が残っていないことを納品可の条件にする。\",\"問題発見時の対応手順：問題を見つけた時点で納品を保留し、該当ファイル・問題の箇所・症状・影響を記録する。\",\"問題発見時の対応手順：記録した問題を修正し、修正後のファイルを保存する。修正内容と対象の版を記録する。\",\"問題発見時の対応手順：修正箇所と影響する項目を再確認し、実際に渡すファイルにも修正が反映されているか確認する。\",\"問題発見時の対応手順：再確認結果を記録し、問題が解消したら「納品前の最終確認」に戻る。解消していない場合は保留を継続し、記録・修正・再確認を繰り返す。\",\"制約：特定サービスの未確認仕様、架空のURL、個人情報、未確認の事実を追加しない。外部参照・リンクは確認手順の説明にとどめ、実際の外部アクセス・外部調査・公開・課金・画像制作は行わない。\",\"最終出力の受入条件：完成文書は日本語のチェックボックス付きMarkdown本文のみとし、コードブロックや制作過程の説明を含めない。\"]}",
+        "error": null,
+        "attempt": 1
+      },
+      "delivery": {
+        "status": "completed",
+        "startedAt": "2026-10-27T08:20:03.494Z",
+        "endedAt": "2026-10-27T08:20:03.511Z",
+        "output": "",
+        "error": null,
+        "attempt": 1
+      }
+    },
+    "artifacts": [
+      {
+        "path": "C:/example/ai-work-visualizer/plan.json",
+        "name": "plan.json",
+        "nodeId": "plan",
+        "sha256": "9432b0021ceff1a19dcf35c6edb3b2e5fdf46f5c528112e6eb06f21d8416bd51",
+        "bytes": 5041,
+        "kind": "text"
+      },
+      {
+        "path": "C:/example/ai-work-visualizer/document.md",
+        "name": "document.md",
+        "nodeId": "writing",
+        "sha256": "d2ae27b891043bc49bf09d938ee521f941488082040e61bd7e5264a504c95d57",
+        "bytes": 6142,
+        "kind": "text"
+      },
+      {
+        "path": "C:/example/ai-work-visualizer/quality.json",
+        "name": "quality.json",
+        "nodeId": "qa",
+        "sha256": "a8e307f7b7122c3153e6789aa2910732a5bc008856d506aeeff23b73250c9847",
+        "bytes": 390,
+        "kind": "quality"
+      },
+      {
+        "path": "C:/example/ai-work-visualizer/manifest.json",
+        "name": "manifest.json",
+        "nodeId": "delivery",
+        "sha256": "690dbdf14e2ff34f33ce0a7535fe640c2c62b42d9f9a688c022ffa30d6e4acbd",
+        "bytes": 1373,
+        "kind": "manifest"
+      }
+    ],
+    "stopRequested": false,
+    "pauseRequested": false,
+    "practical": {
+      "version": 3,
+      "originalInstruction": "個人制作者向けの「制作物の納品前チェックリスト」を、日本語のチェックボックス付きMarkdown（.md）文書として完成させてください。\n一般的なデジタル制作物を対象にし、特定サービスの仕様について根拠のない記述を追加しないでください。\n次の7項目をそれぞれ見出しとして原文どおり含め、各項目に実際に確認できる具体的なチェックボックスを付けてください。\n1. 「ファイルの存在確認」\n2. 「ファイル名と形式の確認」\n3. 「文章や画像の内容確認」\n4. 「外部参照・リンクの確認」\n5. 「保存先とバックアップの確認」\n6. 「納品前の最終確認」\n7. 「問題発見時の対応手順」\n単に見出しを並べるだけでなく、一人の制作者が納品前に上から順に確認して使える文書にしてください。該当しない項目の扱いと、問題を見つけたときの納品保留・記録・修正・再確認の流れを明確にしてください。\n今回の仕事はチェックリストの文章制作だけです。画像生成は不要。公開不要、外部調査不要、個人情報不要。外部参照・リンクは確認手順の説明であり、実際の外部アクセスや架空のURLの追加は不要です。\n出力は完成したMarkdown本文のみ。コードブロックや制作過程の説明は含めないでください。\n",
+      "turnStarts": 2,
+      "maxTurnStarts": 2,
+      "plan": {
+        "title": "制作物の納品前チェックリスト",
+        "requirements": [
+          "ファイルの存在確認",
+          "ファイル名と形式の確認",
+          "文章や画像の内容確認",
+          "外部参照・リンクの確認",
+          "保存先とバックアップの確認",
+          "納品前の最終確認",
+          "問題発見時の対応手順"
+        ],
+        "checklist": [
+          "対象・目的：個人制作者が、一般的なデジタル制作物の納品前に、上から順に確認して使える文書にする。",
+          "構成・形式：7つの必須文言を原文どおりの見出しとして指定順に配置し、各見出しに実際に確認できる具体的なMarkdownチェックボックス「- [ ]」を付ける。",
+          "使い方：確認を終えた項目だけチェックし、未確認の項目は未チェックで残す。",
+          "該当しない項目：項目の横に「該当なし」と理由を記録する。不明・未確認を該当なしとして扱わず、必要な情報が不足する場合はUNKNOWN（未確認）と記録する。",
+          "ファイルの存在確認：納品予定のファイル一覧と実ファイルを照合し、必要なファイルがすべて揃っているか確認する。",
+          "ファイルの存在確認：各ファイルを開き、読み込みエラー、空の内容、欠落したページや素材がないか確認する。",
+          "ファイル名と形式の確認：指定がある場合はファイル名・拡張子・形式を指定内容と照合し、実際に開いた内容と形式が対応しているか確認する。",
+          "ファイル名と形式の確認：同名の旧版や紛らわしい複製を確認し、納品対象の版を一意に判別できるようにする。",
+          "文章や画像の内容確認：文章の誤字脱字、表記の不統一、数値の不一致、未記入箇所、仮文言を確認する。",
+          "文章や画像の内容確認：画像の抜け、取り違え、意図しない切れや歪み、文字の読みにくさを、実際に開いた表示で確認する。該当する文章・画像がない場合は理由付きの該当なしにする。",
+          "文章や画像の内容確認：制作時の要件と完成内容を照合し、必要な内容の漏れや不要な内容の混入がないか確認する。",
+          "外部参照・リンクの確認：リンクや参照先がある場合に、表示文言と接続先の対応、参照先の存在、受取人に必要な閲覧権限を確認する手順を記載する。",
+          "外部参照・リンクの確認：参照ファイルや同梱素材へのリンクが、制作者の作業環境だけに依存していないか確認する。リンクがない場合は該当なしを記録する。",
+          "保存先とバックアップの確認：納品対象の最新版を所定の保存先に保存し、その場所から開き直して内容が維持されているか確認する。",
+          "保存先とバックアップの確認：納品対象のコピーを別の保存場所に確保し、バックアップから必要なファイルを開けるか確認する。",
+          "納品前の最終確認：実際に渡すフォルダーや圧縮ファイルを開き、必要なファイルが揃い、旧版・作業用ファイル・不要なファイルが混ざっていないか確認する。",
+          "納品前の最終確認：納品先・渡し方・必要な条件を確認する。個別の指定内容は創作せず、不明な必要条件はUNKNOWN（未確認）として納品を保留する。",
+          "納品前の最終確認：すべての確認項目が確認済み、または理由付きの該当なしであり、未解決の問題と未確認事項が残っていないことを納品可の条件にする。",
+          "問題発見時の対応手順：問題を見つけた時点で納品を保留し、該当ファイル・問題の箇所・症状・影響を記録する。",
+          "問題発見時の対応手順：記録した問題を修正し、修正後のファイルを保存する。修正内容と対象の版を記録する。",
+          "問題発見時の対応手順：修正箇所と影響する項目を再確認し、実際に渡すファイルにも修正が反映されているか確認する。",
+          "問題発見時の対応手順：再確認結果を記録し、問題が解消したら「納品前の最終確認」に戻る。解消していない場合は保留を継続し、記録・修正・再確認を繰り返す。",
+          "制約：特定サービスの未確認仕様、架空のURL、個人情報、未確認の事実を追加しない。外部参照・リンクは確認手順の説明にとどめ、実際の外部アクセス・外部調査・公開・課金・画像制作は行わない。",
+          "最終出力の受入条件：完成文書は日本語のチェックボックス付きMarkdown本文のみとし、コードブロックや制作過程の説明を含めない。"
+        ]
+      }
+    },
+    "quality": {
+      "artifactSha256": "d2ae27b891043bc49bf09d938ee521f941488082040e61bd7e5264a504c95d57",
+      "machineStatus": "PASS",
+      "displayStatus": "NOT_VERIFIED",
+      "checkedAt": "2026-10-27T08:20:03.465Z",
+      "checks": [
+        "document format and restricted content",
+        "all planned requirements and independent quoted original copy",
+        "semantic/user-value review and display remain separate"
+      ]
+    }
+  },
+  "history": [],
+  "events": [
+    {
+      "eventId": "4af59435-7ffa-5ccf-a6c9-16d8c6d174c3",
+      "timestamp": "2026-10-27T07:41:28.877Z",
+      "jobId": "",
+      "workflowId": "guild-standard",
+      "nodeId": null,
+      "eventType": "connection",
+      "status": "queued",
+      "message": "Codex app-serverとstdio接続。ChatGPT認証を確認しました。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "system"
+    },
+    {
+      "eventId": "73f25b07-2c0a-56d7-8e27-7d2ebc3670a6",
+      "timestamp": "2026-10-27T07:53:58.233Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": null,
+      "eventType": "job_started",
+      "status": "running",
+      "message": "クエストを開始しました。1つのCodex環境で工程を順番に実行します。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "37a2995e-63f9-55f2-b671-f8786e8ca485",
+      "timestamp": "2026-10-27T07:53:58.240Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "plan",
+      "eventType": "node_started",
+      "status": "running",
+      "message": "Codex：要件・工程決定を開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "86293d18-fbad-5d43-88e1-d2056753cc86",
+      "timestamp": "2026-10-27T07:54:00.474Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": null,
+      "eventType": "thread_started",
+      "status": "running",
+      "message": "このクエスト専用のCodexスレッドを開始しました。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "eefa016d-8c4b-51eb-9f13-6a12e9f51c24",
+      "timestamp": "2026-10-27T07:54:00.489Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "plan",
+      "eventType": "turn_dispatch",
+      "status": "running",
+      "message": "turn/startの送信を開始。応答不明時は再送しません。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "7503d3a2-867c-59bc-97e1-5290141d08cb",
+      "timestamp": "2026-10-27T07:54:05.244Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "plan",
+      "eventType": "item_started",
+      "status": "running",
+      "message": "Codex：userMessage を開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "104c13c1-e3bc-5106-bff6-350bf0692d60",
+      "timestamp": "2026-10-27T07:54:27.020Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "plan",
+      "eventType": "item_started",
+      "status": "running",
+      "message": "Codex：reasoning を開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "d7a8fc38-bf7d-5919-bf87-96ec639c21ed",
+      "timestamp": "2026-10-27T07:54:42.030Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "plan",
+      "eventType": "item_started",
+      "status": "running",
+      "message": "Codex：reasoning を開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "2d18ef42-6cff-51b9-a0ed-ab6ac97dfc5e",
+      "timestamp": "2026-10-27T07:55:00.995Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "plan",
+      "eventType": "item_started",
+      "status": "running",
+      "message": "Codex：reasoning を開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "f1a53a71-9d0e-5447-9d4c-4caa8d2fdec2",
+      "timestamp": "2026-10-27T07:55:32.874Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "plan",
+      "eventType": "turn_completed",
+      "status": "running",
+      "message": "Codex正式結果：completed",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "0c606ca7-250a-59b7-a87f-c0306417b813",
+      "timestamp": "2026-10-27T07:55:32.891Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": null,
+      "eventType": "execution_error",
+      "status": "failed",
+      "message": "原文の指定文言が要件から欠落: 制作物の納品前チェックリスト",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": "execution_error",
+      "mode": "real"
+    },
+    {
+      "eventId": "683ebb2d-6abe-536f-861a-994d1905adf7",
+      "timestamp": "2026-10-27T08:18:12.525Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": null,
+      "eventType": "connection",
+      "status": "queued",
+      "message": "Codex app-serverとstdio接続。ChatGPT認証を確認しました。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "2c7cf99a-5423-5a01-b6fa-d8b17ab09c4b",
+      "timestamp": "2026-10-27T08:18:16.190Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "plan",
+      "eventType": "plan_recovery_verified",
+      "status": "queued",
+      "message": "元の正式plan 5041 bytes / SHA-256 9432b0021ceff1a19dcf35c6edb3b2e5fdf46f5c528112e6eb06f21d8416bd51を再検証。再生成0。失敗記録を保全。",
+      "artifactPaths": [
+        "C:/example/ai-work-visualizer/plan-registration-28922b0b727db724eff27f3e4fb92799c2324a74d9b3a7c843e149d3ca7ce276.json",
+        "C:/example/ai-work-visualizer/plan-official-c7486e1478129de92fa9d790f5a15aa60306d087109b02d35ae4b542f905285e.json"
+      ],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "0c027e35-704a-5efe-881f-3b5450e23b6c",
+      "timestamp": "2026-10-27T08:18:16.198Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "plan",
+      "eventType": "node_completed",
+      "status": "paused",
+      "message": "元の要件応答を原bytesのまま登録。文書制作1 turnのみ再開可能。",
+      "artifactPaths": [
+        "C:/example/ai-work-visualizer/plan.json"
+      ],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "18b5affe-2d10-596f-9c9b-6794bb08b72b",
+      "timestamp": "2026-10-27T08:18:16.200Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "plan",
+      "eventType": "plan_recovery_registered",
+      "status": "paused",
+      "message": "同Job・同thread・plan attempt1を保持。登録時の追加推論0。grant 28922b0b727db724eff27f3e4fb92799c2324a74d9b3a7c843e149d3ca7ce276",
+      "artifactPaths": [
+        "C:/example/ai-work-visualizer/plan-registration-28922b0b727db724eff27f3e4fb92799c2324a74d9b3a7c843e149d3ca7ce276.json"
+      ],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "ef75f715-2419-5aa8-8f02-08a0f99458af",
+      "timestamp": "2026-10-27T08:18:44.756Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": null,
+      "eventType": "connection",
+      "status": "queued",
+      "message": "Codex app-serverとstdio接続。ChatGPT認証を確認しました。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "4a509c12-d3a4-5a37-b806-e27f6273c087",
+      "timestamp": "2026-10-27T08:18:44.870Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "writing",
+      "eventType": "planned_writing_continuation",
+      "status": "paused",
+      "message": "承認済みの文書制作1 turnだけを元threadで開始します。原plan再生成0・新Job0。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "d1da762d-b128-5e24-80c0-863e73581111",
+      "timestamp": "2026-10-27T08:18:44.885Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": null,
+      "eventType": "retry_requested",
+      "status": "queued",
+      "message": "未完了の工程だけを再試行。既存成果物と履歴を保持します。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "fe44aa8b-16e7-562e-bcba-32e42390689d",
+      "timestamp": "2026-10-27T08:18:44.895Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "writing",
+      "eventType": "handoff_started",
+      "status": "handing_off",
+      "message": "入力成果物を受け渡しています。",
+      "artifactPaths": [],
+      "edgeId": "plan-writing",
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "806002c1-821c-5d80-803b-7528226ceaf0",
+      "timestamp": "2026-10-27T08:18:44.901Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "writing",
+      "eventType": "handoff_received",
+      "status": "queued",
+      "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+      "artifactPaths": [],
+      "edgeId": "plan-writing",
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "8ddd6c30-e41e-550b-bf8f-e193aeedbe39",
+      "timestamp": "2026-10-27T08:18:44.906Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "writing",
+      "eventType": "node_started",
+      "status": "running",
+      "message": "Codex：文書制作を開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "f437e2e7-6e30-52b3-8f9a-a1f2fa966d02",
+      "timestamp": "2026-10-27T08:18:48.281Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "writing",
+      "eventType": "turn_dispatch",
+      "status": "running",
+      "message": "turn/startの送信を開始。応答不明時は再送しません。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "f281d1d8-d20e-5378-9ad0-88dbfadccc05",
+      "timestamp": "2026-10-27T08:18:49.803Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "writing",
+      "eventType": "item_started",
+      "status": "running",
+      "message": "Codex：userMessage を開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "3e5edb41-c3ec-56bb-a7d3-cadaae92e5c9",
+      "timestamp": "2026-10-27T08:19:09.504Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "writing",
+      "eventType": "item_started",
+      "status": "running",
+      "message": "Codex：reasoning を開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "bf517964-7e5d-5a98-86fb-78eab4aeb650",
+      "timestamp": "2026-10-27T08:19:31.179Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "writing",
+      "eventType": "item_started",
+      "status": "running",
+      "message": "Codex：reasoning を開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "e235863a-e62d-59fd-9c30-d841d67a1f2d",
+      "timestamp": "2026-10-27T08:19:39.099Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "writing",
+      "eventType": "item_started",
+      "status": "running",
+      "message": "Codex：reasoning を開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "d7bf32f3-6ff8-58b1-a40f-0aab3914e1ce",
+      "timestamp": "2026-10-27T08:20:03.413Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "writing",
+      "eventType": "turn_completed",
+      "status": "running",
+      "message": "Codex正式結果：completed",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "7d0b3cc0-533a-5ac6-9059-bafb9fce3d6c",
+      "timestamp": "2026-10-27T08:20:03.441Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "writing",
+      "eventType": "node_completed",
+      "status": "completed",
+      "message": "文書制作が完了しました。",
+      "artifactPaths": [
+        "C:/example/ai-work-visualizer/document.md"
+      ],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "757b61be-4343-52f9-9f40-1489e71cc505",
+      "timestamp": "2026-10-27T08:20:03.446Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "qa",
+      "eventType": "handoff_started",
+      "status": "handing_off",
+      "message": "入力成果物を受け渡しています。",
+      "artifactPaths": [],
+      "edgeId": "writing-qa",
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "0682ee33-3d11-544b-a01c-c9feb269c4ee",
+      "timestamp": "2026-10-27T08:20:03.452Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "qa",
+      "eventType": "handoff_received",
+      "status": "queued",
+      "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+      "artifactPaths": [],
+      "edgeId": "writing-qa",
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "c356a1c7-edaa-5734-af86-0fa80d237874",
+      "timestamp": "2026-10-27T08:20:03.456Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "qa",
+      "eventType": "node_started",
+      "status": "running",
+      "message": "Codexホスト：完成品QAを開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "20c8b864-8c82-53c2-bb3c-6d775171f729",
+      "timestamp": "2026-10-27T08:20:03.475Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "qa",
+      "eventType": "product_quality_checked",
+      "status": "running",
+      "message": "完成品の要件と実hashを照合。画面表示はNOT_VERIFIEDです。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "44d0e8b8-e5a1-5111-a522-0a3468057d76",
+      "timestamp": "2026-10-27T08:20:03.480Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "qa",
+      "eventType": "node_completed",
+      "status": "completed",
+      "message": "完成品QAが完了しました。",
+      "artifactPaths": [
+        "C:/example/ai-work-visualizer/quality.json"
+      ],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "d5860aa6-86a0-501e-bdd3-ef83a4aeb087",
+      "timestamp": "2026-10-27T08:20:03.486Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "delivery",
+      "eventType": "handoff_started",
+      "status": "handing_off",
+      "message": "入力成果物を受け渡しています。",
+      "artifactPaths": [],
+      "edgeId": "qa-delivery",
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "967a2b3f-bd77-50e2-a53d-06ef498f4a1d",
+      "timestamp": "2026-10-27T08:20:03.491Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "delivery",
+      "eventType": "handoff_received",
+      "status": "queued",
+      "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+      "artifactPaths": [],
+      "edgeId": "qa-delivery",
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "fa962656-b7b1-5ce7-906d-37eacbb76dbd",
+      "timestamp": "2026-10-27T08:20:03.494Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "delivery",
+      "eventType": "node_started",
+      "status": "running",
+      "message": "Codexホスト：完成品保存を開始。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "843646d7-c226-51c5-918e-d0c9a7c541f5",
+      "timestamp": "2026-10-27T08:20:03.511Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": "delivery",
+      "eventType": "node_completed",
+      "status": "completed",
+      "message": "完成品保存が完了しました。",
+      "artifactPaths": [
+        "C:/example/ai-work-visualizer/manifest.json"
+      ],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    },
+    {
+      "eventId": "396353ff-5b08-5e6e-90c9-bdbe9e8c364c",
+      "timestamp": "2026-10-27T08:20:03.522Z",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "workflowId": "codex-document-v1",
+      "nodeId": null,
+      "eventType": "job_completed",
+      "status": "completed",
+      "message": "工程と登録ファイルの検査が終了しました。完成品の表示確認と実運用E2Eは別判定です。",
+      "artifactPaths": [],
+      "edgeId": null,
+      "errorCode": null,
+      "mode": "real"
+    }
+  ],
+  "approvals": [],
+  "instructions": [
+    {
+      "id": "20368ab3-4d5e-5f9e-9e25-cd5dc540c606",
+      "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+      "kind": "initial",
+      "text": "個人制作者向けの「制作物の納品前チェックリスト」を、日本語のチェックボックス付きMarkdown（.md）文書として完成させてください。\n一般的なデジタル制作物を対象にし、特定サービスの仕様について根拠のない記述を追加しないでください。\n次の7項目をそれぞれ見出しとして原文どおり含め、各項目に実際に確認できる具体的なチェックボックスを付けてください。\n1. 「ファイルの存在確認」\n2. 「ファイル名と形式の確認」\n3. 「文章や画像の内容確認」\n4. 「外部参照・リンクの確認」\n5. 「保存先とバックアップの確認」\n6. 「納品前の最終確認」\n7. 「問題発見時の対応手順」\n単に見出しを並べるだけでなく、一人の制作者が納品前に上から順に確認して使える文書にしてください。該当しない項目の扱いと、問題を見つけたときの納品保留・記録・修正・再確認の流れを明確にしてください。\n今回の仕事はチェックリストの文章制作だけです。画像生成は不要。公開不要、外部調査不要、個人情報不要。外部参照・リンクは確認手順の説明であり、実際の外部アクセスや架空のURLの追加は不要です。\n出力は完成したMarkdown本文のみ。コードブロックや制作過程の説明は含めないでください。\n",
+      "timestamp": "2026-10-27T07:53:58.233Z"
+    }
+  ],
+  "positions": {},
+  "dataPath": "C:/example/ai-work-visualizer/runtime"
+}

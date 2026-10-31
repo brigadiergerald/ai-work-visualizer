@@ -1,0 +1,14 @@
+import type {Channel, Workspace, FuturePost} from './providers';
+export type Transport='api'|'mcp'|'webhook';
+export type ConnectorStatus='NOT_CONFIGURED'|'CONFIGURED'|'AUTH_REQUIRED'|'CONNECTED'|'READ_VERIFIED'|'UNSUPPORTED'|'FAILED'|'UNKNOWN'|'DISCONNECTED';
+export interface DiscoveredTool {name:string;description:string;inputSchema:unknown;category:'READ'|'UPDATE'|'PUBLICATION'|'DELETE'|'PURCHASE'|'CODE_EXECUTION'|'UNKNOWN';mappedCapability:string|null;executionAllowed:false;reason:string}
+export interface Connector {id:string;displayName:string;providerId:string;transport:Transport;endpointId:string;endpointRef:string|null;authMethod:string;credentialRef:string|null;capabilities:Record<string,boolean>;state:ConnectorStatus;lastCheckedAt:string|null;revision:number;version:1;reason:string;scope:string;discovery:{protocolVersion:string|null;serverInfo:unknown;serverCapabilities:unknown;tools:DiscoveredTool[]};settings:Record<string,unknown>;attempts:{id:string;startedAt:string;endedAt:string|null;status:string;scope?:string;receipt?:{receipt:string;httpStatus?:number;publication?:string;error?:string}}[]}
+export interface ConnectorHub {version:1;transports:Transport[];connectors:Connector[];externalWrites:0;publication:'NOT_PERFORMED'}
+export type ConnectorAction={operation:'get'}|{operation:'register';displayName:string;providerId:string;transport:Transport;endpointId:string;authMethod:string;settings:Record<string,unknown>}|{operation:'check'|'disconnect'|'sendMock';connectorId:string;revision:number}|{operation:'getCapabilities'|'listWorkspaces';connectorId:string}|{operation:'listChannels';connectorId:string;workspaceId:string};
+export interface ConnectorBusiness {listWorkspaces():Promise<Workspace[]>;listChannels(workspaceId:string):Promise<Channel[]>;getCapabilities():Promise<Record<string,boolean>>}
+/** Future write binding only. Core exposes no external write Action. */
+export interface ConnectorPostApproval {connectorId:string;transport:Transport;approval:NonNullable<FuturePost['publicationApproval']>}
+export const connectorLabels:Record<ConnectorStatus,string>={NOT_CONFIGURED:'未設定',CONFIGURED:'設定済み・未確認',AUTH_REQUIRED:'認証設定が必要',CONNECTED:'接続・受付確認済み',READ_VERIFIED:'読み取り確認済み',UNSUPPORTED:'未対応',FAILED:'確認失敗',UNKNOWN:'結果不明・再送停止',DISCONNECTED:'切断済み'};
+export const capabilityLabels:Record<string,string>={listWorkspaces:'ワークスペース取得',listChannels:'投稿先取得',getCapabilities:'対応機能表示',createDraft:'外部下書き作成',schedulePost:'予約',publishPost:'公開',getPostStatus:'投稿状態取得'};
+export const canCheck=(c:Connector)=>c.transport==='api'?!['UNKNOWN','DISCONNECTED'].includes(c.state):c.transport==='mcp'&&c.attempts.length===0&&!['UNKNOWN','DISCONNECTED'].includes(c.state);
+export const canSendMock=(c:Connector)=>c.transport==='webhook'&&c.providerId==='mock-webhook'&&c.state==='CONFIGURED'&&c.attempts.length===0;

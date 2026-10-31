@@ -1,0 +1,56 @@
+{
+  "frameWidth": 32,
+  "frameHeight": 48,
+  "columns": 4,
+  "rows": [
+    "queued",
+    "running",
+    "handing_off",
+    "completed",
+    "failed",
+    "paused"
+  ],
+  "provenance": "Original project-authored pixel artwork retained for compatibility tests.",
+  "characters": [
+    {
+      "spriteKey": "scholar",
+      "file": "public/sprites/scholar.png",
+      "sha256": "4a8028fbfb9ba8a8b73e699e166ecc50eb9b25f318fb25d1f2a2a1c84b29ca92",
+      "width": 128,
+      "height": 288
+    },
+    {
+      "spriteKey": "scribe",
+      "file": "public/sprites/scribe.png",
+      "sha256": "05177fba8d37c24241d5badfc2ad88d407e22352f72f40179c3f823fab018b22",
+      "width": 128,
+      "height": 288
+    },
+    {
+      "spriteKey": "artist",
+      "file": "public/sprites/artist.png",
+      "sha256": "2838e6bbd5854da59493bf121c3b7782beb88aa9e12d6d0711dc11e9bbfa281e",
+      "width": 128,
+      "height": 288
+    },
+    {
+      "spriteKey": "analyst",
+      "file": "public/sprites/analyst.png",
+      "sha256": "85c21d1dc5a8ba123bbfab25607588fe9448515ae91aee751de1b69619f79a24",
+      "width": 128,
+      "height": 288
+    },
+    {
+      "spriteKey": "messenger",
+      "file": "public/sprites/messenger.png",
+      "sha256": "e8c13773930e1d7733b031a8fa10f020be37949482ef1f7a7b41f6ae1a7af6b2",
+      "width": 128,
+      "height": 288
+    }
+  ],
+  "icon": {
+    "file": "public/sprites/guild-icon.png",
+    "sha256": "051d470cbaf7386ed7035c6c724c3995c4324778a26d64af4eda8f081d302427"
+  },
+  "license": "See CHARACTER_ASSETS_LICENSE.md."
+}

@@ -1,0 +1,7 @@
+{
+ "$schema":"../gen/schemas/desktop-schema.json",
+ "identifier":"main-window",
+ "description":"Local AI GUILD window: core event delivery only. No shell, filesystem or network plugins are exposed to the webview.",
+ "windows":["main"],
+ "permissions":["core:default"]
+}

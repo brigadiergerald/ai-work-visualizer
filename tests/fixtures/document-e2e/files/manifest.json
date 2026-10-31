@@ -1,0 +1,32 @@
+{
+  "artifacts": [
+    {
+      "bytes": 5041,
+      "kind": "text",
+      "name": "plan.json",
+      "nodeId": "plan",
+      "path": "C:/example/ai-work-visualizer/plan.json",
+      "sha256": "9432b0021ceff1a19dcf35c6edb3b2e5fdf46f5c528112e6eb06f21d8416bd51"
+    },
+    {
+      "bytes": 6142,
+      "kind": "text",
+      "name": "document.md",
+      "nodeId": "writing",
+      "path": "C:/example/ai-work-visualizer/document.md",
+      "sha256": "d2ae27b891043bc49bf09d938ee521f941488082040e61bd7e5264a504c95d57"
+    },
+    {
+      "bytes": 390,
+      "kind": "quality",
+      "name": "quality.json",
+      "nodeId": "qa",
+      "path": "C:/example/ai-work-visualizer/quality.json",
+      "sha256": "a8e307f7b7122c3153e6789aa2910732a5bc008856d506aeeff23b73250c9847"
+    }
+  ],
+  "createdAt": "2026-10-27T08:20:03.504Z",
+  "jobId": "6f00757c-4cff-5a90-a6f9-8364637a92bf",
+  "mode": "real",
+  "publication": "NOT_PERFORMED"
+}

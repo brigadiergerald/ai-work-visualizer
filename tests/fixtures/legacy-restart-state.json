@@ -1,0 +1,976 @@
+{
+  "state": {
+    "workflow": {
+      "workflowId": "guild-codex-only",
+      "workflowName": "Codexで仕事を完成させる",
+      "nodes": [
+        {
+          "nodeId": "research",
+          "role": "調査・要件整理",
+          "label": "調査・要件整理",
+          "spriteKey": "scholar",
+          "workInstruction": "ユーザー指示の目的に必要な情報を整理する。確認済み事実と不明点を区別し、後工程が使える調査メモを日本語で作成する。",
+          "dependencies": [],
+          "inputArtifacts": [],
+          "outputArtifacts": [
+            "research.md"
+          ],
+          "executor": "codex"
+        },
+        {
+          "nodeId": "writing",
+          "role": "計画・設計",
+          "label": "計画・設計",
+          "spriteKey": "scribe",
+          "workInstruction": "調査結果とユーザーの指示に沿って読みやすい本文を日本語で作成する。未確認の経験や事実を創作しない。",
+          "dependencies": [
+            "research"
+          ],
+          "inputArtifacts": [
+            "research.md"
+          ],
+          "outputArtifacts": [
+            "writing.md"
+          ],
+          "executor": "codex"
+        },
+        {
+          "nodeId": "image",
+          "role": "制作・実装",
+          "label": "制作・実装",
+          "spriteKey": "artist",
+          "workInstruction": "計画とユーザー原文に従い、完成品を作成する。対応する成果物をローカルへ保存し、未確認の実行や外部操作を装わない。",
+          "dependencies": [
+            "writing"
+          ],
+          "inputArtifacts": [
+            "writing.md"
+          ],
+          "outputArtifacts": [
+            "product.md"
+          ],
+          "executor": "codex"
+        },
+        {
+          "nodeId": "review",
+          "role": "品質検査・修正",
+          "label": "品質検査・修正",
+          "spriteKey": "analyst",
+          "workInstruction": "前工程の本文と登録済み素材を確認し、正確性、一貫性、未解決点を日本語でレビューする。画像が目視できない場合はその限界を明記する。",
+          "dependencies": [
+            "image"
+          ],
+          "inputArtifacts": [
+            "writing.md"
+          ],
+          "outputArtifacts": [
+            "review.md"
+          ],
+          "executor": "codex"
+        },
+        {
+          "nodeId": "delivery",
+          "role": "保存・納品",
+          "label": "保存・納品",
+          "spriteKey": "messenger",
+          "workInstruction": "成果物の所属・実ファイル・サイズ・SHA-256を確認しマニフェストを保存する。公開は実行しない。",
+          "dependencies": [
+            "review"
+          ],
+          "inputArtifacts": [
+            "review.md"
+          ],
+          "outputArtifacts": [
+            "manifest.json"
+          ],
+          "executor": "save"
+        }
+      ],
+      "edges": [
+        {
+          "edgeId": "research-writing",
+          "fromNodeId": "research",
+          "toNodeId": "writing"
+        },
+        {
+          "edgeId": "writing-image",
+          "fromNodeId": "writing",
+          "toNodeId": "image"
+        },
+        {
+          "edgeId": "image-review",
+          "fromNodeId": "image",
+          "toNodeId": "review"
+        },
+        {
+          "edgeId": "review-delivery",
+          "fromNodeId": "review",
+          "toNodeId": "delivery"
+        }
+      ]
+    },
+    "projects": [
+      {
+        "name": "はじまりのギルド",
+        "path": "C:/example/ai-work-visualizer/workspace"
+      },
+      {
+        "name": "マイワークスペース",
+        "path": "C:/example/ai-work-visualizer/work"
+      }
+    ],
+    "project": {
+      "name": "マイワークスペース",
+      "path": "C:/example/ai-work-visualizer/work"
+    },
+    "mode": "real",
+    "connection": {
+      "status": "disconnected",
+      "version": "codex-cli 0.164.0-alpha.11.1",
+      "account": "",
+      "error": null
+    },
+    "job": {
+      "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+      "workflowId": "codex-general-v1",
+      "workflow": {
+        "workflowId": "codex-general-v1",
+        "workflowName": "SNS投稿文の作成・投稿準備",
+        "nodes": [
+          {
+            "nodeId": "plan",
+            "role": "Codex",
+            "label": "調査・要件整理",
+            "spriteKey": "scholar",
+            "workInstruction": "ユーザー原文・添付原文から完成品の要件を決める。JSONだけ: {\"title\":文字列,\"requirements\":[完成品全体の必須内容],\"checklist\":[受入条件],\"productionConstraints\":[制作条件・不明点],\"files\":[{\"name\":安全なファイル名,\"requiredText\":[そのファイル本文に必須の原文文字列]}]}。filesは1〜12件、平坦な名前、拡張子md/txt/html/json/csv/tsv/py/js/mjs/ts/tsx/rs/cssのみ。plan.json/bundle.json/quality.json/manifest.jsonは予約名。原文の目的・対象・形式・正確な表示文言を維持。重大な不足は創作せず報告して停止。本文へ内部管理情報を混入させない。コードでは利用手順とテスト用ソースを必要に応じ計画する。テスト要求があるPythonはtestCommand=python-unittestとtest_*.py、Node.jsはtestCommand=node-testと*.test.mjsを計画する（JSONのトップレベルにtestCommandを追加）。ホストがCodex sandboxで検査する。実行テストの要求がなければtestCommandは空文字。対応外の言語の実行テストは未対応として不足を報告。\n用途はSNS投稿文の作成・投稿準備。納品はUTF-8のpost.txt 1件のみ。testCommandは空文字。外部公開・予約・投稿はしない。対象読者、目的、媒体、確定文言、提供された事実・体験を維持し、不明な体験・数値・実績を創作しない。本人のエピソードが必要で素材がなければ質問する。話し言葉、長短の文、余韻のある終わりを基本とし、ユーザー指定を優先する。",
+            "dependencies": [],
+            "inputArtifacts": [],
+            "outputArtifacts": [
+              "plan.json"
+            ],
+            "executor": "codex"
+          },
+          {
+            "nodeId": "writing",
+            "role": "Codex",
+            "label": "SNS文章案の作成",
+            "spriteKey": "artist",
+            "workInstruction": "plan.jsonとユーザー原文に沿って使える完成品を制作。JSONだけ: {\"files\":[{\"name\":planの出力名,\"content\":ファイルの完全な内容}]}。計画した全ファイルを過不足なく返す。コード囲みや付随報告なし。requiredTextと原文の表示文言を保持。HTMLは自己完結の静的文書、lang=ja/UTF-8/viewport/title/h1/sectionを含み、外部URL/画像/script/フォームは禁止。JSONは有効なJSON、CSV/TSVは同じ列数で表計算式を含めない。ソースはコードをそのまま納品。コードの実行テスト/依存install/外部操作を実行したと主張しない。未確認の数値・体験・引用を創作しない。\npost.txtだけを制作する。文章案であり、投稿成功・公開済みとは書かない。未確認の本人の経験は創作せず質問する。話し言葉と長短の文を自然に混ぜ、原文の目的と固定文言を守る。",
+            "dependencies": [
+              "plan"
+            ],
+            "inputArtifacts": [
+              "plan.json"
+            ],
+            "outputArtifacts": [
+              "bundle.json"
+            ],
+            "executor": "codex"
+          },
+          {
+            "nodeId": "qa",
+            "role": "検証・保存",
+            "label": "品質検査・修正確認",
+            "spriteKey": "analyst",
+            "workInstruction": "全納品ファイル・原文指定・形式・所属・hashを検査。不一致は停止。意味・表示・コード実行テストは機械検査とは別判定。",
+            "dependencies": [
+              "writing"
+            ],
+            "inputArtifacts": [
+              "plan.json",
+              "bundle.json"
+            ],
+            "outputArtifacts": [
+              "quality.json"
+            ],
+            "executor": "quality"
+          },
+          {
+            "nodeId": "sns_review",
+            "role": "人間",
+            "label": "内容確認・人間の承認",
+            "spriteKey": "analyst",
+            "workInstruction": "文章案の実内容とhashを確認し、納品を承認または停止する。外部公開の承認ではない。",
+            "dependencies": [
+              "qa"
+            ],
+            "inputArtifacts": [
+              "post.txt",
+              "quality.json"
+            ],
+            "outputArtifacts": [
+              "review.json"
+            ],
+            "executor": "review"
+          },
+          {
+            "nodeId": "delivery",
+            "role": "検証・保存",
+            "label": "保存・納品",
+            "spriteKey": "messenger",
+            "workInstruction": "完成品を再検証し、所属とSHA-256を保存する。公開・自動更新・外部操作なし。",
+            "dependencies": [
+              "sns_review"
+            ],
+            "inputArtifacts": [
+              "bundle.json",
+              "quality.json",
+              "review.json"
+            ],
+            "outputArtifacts": [
+              "manifest.json"
+            ],
+            "executor": "save"
+          }
+        ],
+        "edges": [
+          {
+            "edgeId": "plan-writing",
+            "fromNodeId": "plan",
+            "toNodeId": "writing"
+          },
+          {
+            "edgeId": "writing-qa",
+            "fromNodeId": "writing",
+            "toNodeId": "qa"
+          },
+          {
+            "edgeId": "qa-sns_review",
+            "fromNodeId": "qa",
+            "toNodeId": "sns_review"
+          },
+          {
+            "edgeId": "sns_review-delivery",
+            "fromNodeId": "sns_review",
+            "toNodeId": "delivery"
+          }
+        ]
+      },
+      "status": "completed",
+      "mode": "real",
+      "instruction": "SNS向けに、机の片づけを始めるための日本語の短文を1件作成してください。\n\n条件：\n\n- 120〜180字程度\n- 「まずは一つだけ」を必ず含める\n- 「5分」を必ず含める\n- 落ち着いた前向きな文章にする\n- 実体験を創作しない\n- 効果を保証しない\n- 商品紹介・URLを入れない\n- SNSへの投稿は行わない\n\n作成した文章を確認できる状態にしてください。",
+      "startedAt": "2026-10-28T07:55:47.288Z",
+      "endedAt": "2026-10-28T07:59:03.228Z",
+      "workspace": "C:/example/ai-work-visualizer/db18f93b-1373-5406-95d6-570b3d2cceb0",
+      "threadId": "04568ac5-b8aa-5271-906c-3fe385000a78",
+      "turnId": null,
+      "activeNodeId": null,
+      "nodes": {
+        "writing": {
+          "status": "completed",
+          "startedAt": "2026-10-28T07:56:39.972Z",
+          "endedAt": "2026-10-28T07:57:04.458Z",
+          "output": "{\"files\":[{\"name\":\"post.txt\",\"content\":\"机を片づけたいけれど、どこから手をつけよう。そんなときは、まずは一つだけ。出しっぱなしのペンを戻す、いらない紙を一枚よける。それくらいから始めてみませんか。時間は5分を目安に、途中でやめても大丈夫。今日は手元の小さな一角に、少しだけ目を向けてみるのもよさそうです。\"}]}",
+          "error": null,
+          "attempt": 1
+        },
+        "qa": {
+          "status": "completed",
+          "startedAt": "2026-10-28T07:57:04.520Z",
+          "endedAt": "2026-10-28T07:57:04.593Z",
+          "output": "",
+          "error": null,
+          "attempt": 1
+        },
+        "sns_review": {
+          "status": "completed",
+          "startedAt": "2026-10-28T07:57:04.660Z",
+          "endedAt": "2026-10-28T07:59:03.027Z",
+          "output": "",
+          "error": null,
+          "attempt": 1
+        },
+        "delivery": {
+          "status": "completed",
+          "startedAt": "2026-10-28T07:59:03.132Z",
+          "endedAt": "2026-10-28T07:59:03.194Z",
+          "output": "",
+          "error": null,
+          "attempt": 1
+        },
+        "plan": {
+          "status": "completed",
+          "startedAt": "2026-10-28T07:55:47.311Z",
+          "endedAt": "2026-10-28T07:56:39.932Z",
+          "output": "{\"title\":\"机の片づけを始めるためのSNS向け短文\",\"requirements\":[\"机の片づけを始めたいSNS読者に向けて、取りかかるきっかけになる日本語の短文を1件作成する。\",\"本文は120〜180字程度とし、「まずは一つだけ」と「5分」を原文どおりに必ず含める。\",\"落ち着いた前向きな文章にする。自然な話し言葉と長短の文を使い、余韻のある終わりを基本とする。\",\"未確認の実体験・発言・数値・実績を創作せず、片づけによる効果を保証しない。\",\"商品紹介・URL・内部管理情報を本文に含めない。\",\"納品物は、完成した投稿本文だけを確認できるUTF-8のpost.txt 1件とする。\"],\"checklist\":[\"日本語の投稿文が1件だけある。\",\"机の片づけを始めるという目的に沿っている。\",\"本文が120〜180字程度である。\",\"「まずは一つだけ」と「5分」が完全一致で含まれている。\",\"落ち着いた前向きな語調で、読み手を急かしたり責めたりしない。\",\"創作した実体験や未確認の事実、効果を保証する表現がない。\",\"商品紹介・URL・管理情報・制作上の説明がない。\",\"納品物がUTF-8のpost.txt 1件のみで、本文をそのまま確認できる。\",\"外部公開・予約・SNS投稿を実行していない。\"],\"productionConstraints\":[\"現在の工程は調査・要件整理とし、この回答では完成品の要件だけを返す。ファイル保存はホストが行う。\",\"文章はCodexが直接作成する。ブラウザ連携・別AIサービス・画像生成は使用しない。\",\"具体的なSNSサービスは未指定のため、特定媒体を前提としない。\",\"本人の体験素材は未提供。体験談を必要としない構成にし、本人のエピソードが必要になった場合は質問して確認する。\",\"指定された「5分」は使用するが、所要時間や成果の保証にはしない。\",\"外部公開・予約・投稿は行わない。実行テストの要求はない。\"],\"files\":[{\"name\":\"post.txt\",\"requiredText\":[\"まずは一つだけ\",\"5分\"]}],\"testCommand\":\"\"}",
+          "error": null,
+          "attempt": 1
+        }
+      },
+      "artifacts": [
+        {
+          "path": "C:/example/ai-work-visualizer/plan.json",
+          "name": "plan.json",
+          "nodeId": "plan",
+          "sha256": "30ec7234af243a27ff42603ed69f41f56de9212b8d48ad976a030f295927291f",
+          "bytes": 2418,
+          "kind": "text"
+        },
+        {
+          "path": "C:/example/ai-work-visualizer/post.txt",
+          "name": "post.txt",
+          "nodeId": "writing",
+          "sha256": "09c2b5edd08a27387d36f508c46cbe306e0c52c8848d51dae613a01641cd0a47",
+          "bytes": 394,
+          "kind": "product"
+        },
+        {
+          "path": "C:/example/ai-work-visualizer/bundle.json",
+          "name": "bundle.json",
+          "nodeId": "writing",
+          "sha256": "d93e71156be0308373b8e7e7c3e68882c646ada0f2d09fb2500b7147f7ef0b55",
+          "bytes": 438,
+          "kind": "text"
+        },
+        {
+          "path": "C:/example/ai-work-visualizer/quality.json",
+          "name": "quality.json",
+          "nodeId": "qa",
+          "sha256": "5d41881de5fb6206355752683793922fa1f5cf46dd51e5198835c060a5d868f7",
+          "bytes": 505,
+          "kind": "quality"
+        },
+        {
+          "path": "C:/example/ai-work-visualizer/review.json",
+          "name": "review.json",
+          "nodeId": "sns_review",
+          "sha256": "798146e7a87aedf5e0536f6c130f6305037c756cab605b1638ef31f5aea15036",
+          "bytes": 329,
+          "kind": "review"
+        },
+        {
+          "path": "C:/example/ai-work-visualizer/manifest.json",
+          "name": "manifest.json",
+          "nodeId": "delivery",
+          "sha256": "c7ad050055b10d64a0df75d91809842a9a109327447530085387ee394bd853d1",
+          "bytes": 2110,
+          "kind": "manifest"
+        }
+      ],
+      "stopRequested": false,
+      "pauseRequested": false,
+      "practical": {
+        "version": 5,
+        "originalInstruction": "SNS向けに、机の片づけを始めるための日本語の短文を1件作成してください。\n\n条件：\n\n- 120〜180字程度\n- 「まずは一つだけ」を必ず含める\n- 「5分」を必ず含める\n- 落ち着いた前向きな文章にする\n- 実体験を創作しない\n- 効果を保証しない\n- 商品紹介・URLを入れない\n- SNSへの投稿は行わない\n\n作成した文章を確認できる状態にしてください。",
+        "turnStarts": 2,
+        "maxTurnStarts": 2,
+        "plan": {
+          "title": "机の片づけを始めるためのSNS向け短文",
+          "requirements": [
+            "机の片づけを始めたいSNS読者に向けて、取りかかるきっかけになる日本語の短文を1件作成する。",
+            "本文は120〜180字程度とし、「まずは一つだけ」と「5分」を原文どおりに必ず含める。",
+            "落ち着いた前向きな文章にする。自然な話し言葉と長短の文を使い、余韻のある終わりを基本とする。",
+            "未確認の実体験・発言・数値・実績を創作せず、片づけによる効果を保証しない。",
+            "商品紹介・URL・内部管理情報を本文に含めない。",
+            "納品物は、完成した投稿本文だけを確認できるUTF-8のpost.txt 1件とする。"
+          ],
+          "checklist": [
+            "日本語の投稿文が1件だけある。",
+            "机の片づけを始めるという目的に沿っている。",
+            "本文が120〜180字程度である。",
+            "「まずは一つだけ」と「5分」が完全一致で含まれている。",
+            "落ち着いた前向きな語調で、読み手を急かしたり責めたりしない。",
+            "創作した実体験や未確認の事実、効果を保証する表現がない。",
+            "商品紹介・URL・管理情報・制作上の説明がない。",
+            "納品物がUTF-8のpost.txt 1件のみで、本文をそのまま確認できる。",
+            "外部公開・予約・SNS投稿を実行していない。"
+          ],
+          "productionConstraints": [
+            "現在の工程は調査・要件整理とし、この回答では完成品の要件だけを返す。ファイル保存はホストが行う。",
+            "文章はCodexが直接作成する。ブラウザ連携・別AIサービス・画像生成は使用しない。",
+            "具体的なSNSサービスは未指定のため、特定媒体を前提としない。",
+            "本人の体験素材は未提供。体験談を必要としない構成にし、本人のエピソードが必要になった場合は質問して確認する。",
+            "指定された「5分」は使用するが、所要時間や成果の保証にはしない。",
+            "外部公開・予約・投稿は行わない。実行テストの要求はない。"
+          ]
+        }
+      },
+      "quality": {
+        "artifactSha256": "d93e71156be0308373b8e7e7c3e68882c646ada0f2d09fb2500b7147f7ef0b55",
+        "machineStatus": "PASS",
+        "displayStatus": "NOT_VERIFIED",
+        "checkedAt": "2026-10-28T07:57:04.551Z",
+        "checks": [
+          "independent original quoted copy + per-file acceptance",
+          "exact planned files + registered ownership + full bytes/SHA-256",
+          "JSON/CSV/TSV/static HTML format where applicable",
+          "semantic usefulness/display: NOT_VERIFIED",
+          "runtime code tests: NOT_REQUESTED/NOT_VERIFIED"
+        ]
+      }
+    },
+    "history": [],
+    "events": [
+      {
+        "eventId": "98fd24c5-8f7f-5824-af01-d99887c12aa6",
+        "timestamp": "2026-10-28T07:54:18.328Z",
+        "jobId": "",
+        "workflowId": "guild-codex-only",
+        "nodeId": null,
+        "eventType": "setup_saved",
+        "status": "queued",
+        "message": "作業範囲・納品先・承認方針を保存。認証情報は保存していません。接続テストは未実行です。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "system"
+      },
+      {
+        "eventId": "c490b7e4-5682-5769-8953-b4efeeb8c25c",
+        "timestamp": "2026-10-28T07:54:49.731Z",
+        "jobId": "",
+        "workflowId": "guild-codex-only",
+        "nodeId": null,
+        "eventType": "connection",
+        "status": "queued",
+        "message": "Codex app-serverとstdio接続。ChatGPT認証を確認しました。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "system"
+      },
+      {
+        "eventId": "757e2374-cac1-5717-9094-388baf57b511",
+        "timestamp": "2026-10-28T07:55:47.288Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": null,
+        "eventType": "job_started",
+        "status": "running",
+        "message": "クエストを開始しました。1つのCodex環境で工程を順番に実行します。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "1c93c8d1-0aaf-5447-8348-4bff5c16d204",
+        "timestamp": "2026-10-28T07:55:47.311Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "plan",
+        "eventType": "node_started",
+        "status": "running",
+        "message": "Codex：調査・要件整理を開始。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "71fe74df-89d6-50c2-8149-9c87202dc75e",
+        "timestamp": "2026-10-28T07:55:49.470Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": null,
+        "eventType": "thread_started",
+        "status": "running",
+        "message": "このクエスト専用のCodexスレッドを開始しました。thread=04568ac5-b8aa-5271-906c-3fe385000a78; sandbox={\"networkAccess\":false,\"type\":\"readOnly\"}; approval=\"on-request\"",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "ec74b249-9839-5288-a643-97384ca4d9c1",
+        "timestamp": "2026-10-28T07:55:49.494Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "plan",
+        "eventType": "turn_dispatch",
+        "status": "running",
+        "message": "turn/startの送信を開始。応答不明時は再送しません。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "166c747a-7eb7-5031-9ae4-54fbdea44964",
+        "timestamp": "2026-10-28T07:55:58.914Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "plan",
+        "eventType": "item_started",
+        "status": "running",
+        "message": "Codex：userMessage を開始。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "add6f3ee-d129-52fd-9aa5-708a3ee33112",
+        "timestamp": "2026-10-28T07:56:19.666Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "plan",
+        "eventType": "item_started",
+        "status": "running",
+        "message": "Codex：reasoning を開始。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "b87d6c69-6186-5ae4-a4bd-41e94b3379f0",
+        "timestamp": "2026-10-28T07:56:27.854Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "plan",
+        "eventType": "item_started",
+        "status": "running",
+        "message": "Codex：reasoning を開始。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "7f0e3ee3-03a6-5520-8759-2db203cddc94",
+        "timestamp": "2026-10-28T07:56:39.890Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "plan",
+        "eventType": "turn_completed",
+        "status": "running",
+        "message": "Codex正式結果：completed",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "4824c5d2-3f19-579a-a54e-5cc90ec452d0",
+        "timestamp": "2026-10-28T07:56:39.932Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "plan",
+        "eventType": "node_completed",
+        "status": "completed",
+        "message": "調査・要件整理が完了しました。",
+        "artifactPaths": [
+          "C:/example/ai-work-visualizer/plan.json"
+        ],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "504322f8-b92b-5163-9b46-4693d35b482d",
+        "timestamp": "2026-10-28T07:56:39.946Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "writing",
+        "eventType": "handoff_started",
+        "status": "handing_off",
+        "message": "入力成果物を受け渡しています。",
+        "artifactPaths": [],
+        "edgeId": "plan-writing",
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "3eb637a4-64a1-5680-b3a1-987e4994bd3d",
+        "timestamp": "2026-10-28T07:56:39.960Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "writing",
+        "eventType": "handoff_received",
+        "status": "queued",
+        "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+        "artifactPaths": [],
+        "edgeId": "plan-writing",
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "3bb1ee1b-13fe-5e06-b7b8-a5e999d319bd",
+        "timestamp": "2026-10-28T07:56:39.972Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "writing",
+        "eventType": "node_started",
+        "status": "running",
+        "message": "Codex：SNS文章案の作成を開始。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "114ce113-6c59-5c31-9055-41fb96981039",
+        "timestamp": "2026-10-28T07:56:39.986Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "writing",
+        "eventType": "turn_dispatch",
+        "status": "running",
+        "message": "turn/startの送信を開始。応答不明時は再送しません。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "cf3a2f6f-9b93-5971-ad98-0e88878ce51d",
+        "timestamp": "2026-10-28T07:56:40.095Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "writing",
+        "eventType": "item_started",
+        "status": "running",
+        "message": "Codex：userMessage を開始。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "92df40c8-6b26-506a-a65e-f23786fd1966",
+        "timestamp": "2026-10-28T07:56:56.090Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "writing",
+        "eventType": "item_started",
+        "status": "running",
+        "message": "Codex：reasoning を開始。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "db4047ea-9bea-550d-b7cc-032651589d1c",
+        "timestamp": "2026-10-28T07:57:01.360Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "writing",
+        "eventType": "item_started",
+        "status": "running",
+        "message": "Codex：reasoning を開始。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "ded40eb4-4c08-5241-893c-0812f1708ae9",
+        "timestamp": "2026-10-28T07:57:04.375Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "writing",
+        "eventType": "turn_completed",
+        "status": "running",
+        "message": "Codex正式結果：completed",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "381be294-8f1d-5d1a-90a9-7dd070979a86",
+        "timestamp": "2026-10-28T07:57:04.458Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "writing",
+        "eventType": "node_completed",
+        "status": "completed",
+        "message": "SNS文章案の作成が完了しました。",
+        "artifactPaths": [
+          "C:/example/ai-work-visualizer/post.txt",
+          "C:/example/ai-work-visualizer/bundle.json"
+        ],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "87613314-c4ec-5665-a8bd-0ecbdcdb296e",
+        "timestamp": "2026-10-28T07:57:04.478Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "qa",
+        "eventType": "handoff_started",
+        "status": "handing_off",
+        "message": "入力成果物を受け渡しています。",
+        "artifactPaths": [],
+        "edgeId": "writing-qa",
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "d2a45653-8fa6-55ec-9330-d15ded3bb22d",
+        "timestamp": "2026-10-28T07:57:04.499Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "qa",
+        "eventType": "handoff_received",
+        "status": "queued",
+        "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+        "artifactPaths": [],
+        "edgeId": "writing-qa",
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "e2c3253c-352b-5613-8f60-0b90b8c11213",
+        "timestamp": "2026-10-28T07:57:04.520Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "qa",
+        "eventType": "node_started",
+        "status": "running",
+        "message": "検証・保存：品質検査・修正確認を開始。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "b4457749-e302-545e-b9f0-efd6765427e5",
+        "timestamp": "2026-10-28T07:57:04.573Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "qa",
+        "eventType": "product_quality_checked",
+        "status": "running",
+        "message": "完成品の要件と実hashを照合。画面表示はNOT_VERIFIEDです。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "e977b3ce-57e5-5bec-904b-55cbb0dbb15b",
+        "timestamp": "2026-10-28T07:57:04.593Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "qa",
+        "eventType": "node_completed",
+        "status": "completed",
+        "message": "品質検査・修正確認が完了しました。",
+        "artifactPaths": [
+          "C:/example/ai-work-visualizer/quality.json"
+        ],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "262c420c-67f6-53ca-b129-4d2fad2a88e7",
+        "timestamp": "2026-10-28T07:57:04.616Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "sns_review",
+        "eventType": "handoff_started",
+        "status": "handing_off",
+        "message": "入力成果物を受け渡しています。",
+        "artifactPaths": [],
+        "edgeId": "qa-sns_review",
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "e1802d99-2975-5507-ba24-20475d9f4b89",
+        "timestamp": "2026-10-28T07:57:04.639Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "sns_review",
+        "eventType": "handoff_received",
+        "status": "queued",
+        "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+        "artifactPaths": [],
+        "edgeId": "qa-sns_review",
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "4358265b-3d2e-5074-88c6-4ee705bb7f36",
+        "timestamp": "2026-10-28T07:57:04.660Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "sns_review",
+        "eventType": "node_started",
+        "status": "running",
+        "message": "人間：内容確認・人間の承認を開始。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "9fdee528-0429-5997-8b34-c6efed1fa6a2",
+        "timestamp": "2026-10-28T07:57:04.690Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "sns_review",
+        "eventType": "content_review_requested",
+        "status": "awaiting_approval",
+        "message": "文章案の内容確認を待っています。外部への投稿は行っていません。",
+        "artifactPaths": [
+          "C:/example/ai-work-visualizer/post.txt"
+        ],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "2c2616ba-4bfb-5095-b24d-498187176c98",
+        "timestamp": "2026-10-28T07:59:03.000Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "sns_review",
+        "eventType": "content_review_answered",
+        "status": "running",
+        "message": "文章案の納品確認: accept。外部投稿なし。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "08ee6e04-d17d-5b7f-b989-53dbd227d4cb",
+        "timestamp": "2026-10-28T07:59:03.074Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "delivery",
+        "eventType": "handoff_started",
+        "status": "handing_off",
+        "message": "入力成果物を受け渡しています。",
+        "artifactPaths": [],
+        "edgeId": "sns_review-delivery",
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "ef779250-6dd1-543a-a5a7-f68180cb4620",
+        "timestamp": "2026-10-28T07:59:03.105Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "delivery",
+        "eventType": "handoff_received",
+        "status": "queued",
+        "message": "入力成果物の実ファイルとSHA-256を確認しました。",
+        "artifactPaths": [],
+        "edgeId": "sns_review-delivery",
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "d7814097-da73-57de-a3ae-09b2ee031cf4",
+        "timestamp": "2026-10-28T07:59:03.132Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "delivery",
+        "eventType": "node_started",
+        "status": "running",
+        "message": "検証・保存：保存・納品を開始。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "6e6cd733-4d1c-5928-a126-73f6185ae471",
+        "timestamp": "2026-10-28T07:59:03.194Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "delivery",
+        "eventType": "node_completed",
+        "status": "completed",
+        "message": "保存・納品が完了しました。",
+        "artifactPaths": [
+          "C:/example/ai-work-visualizer/manifest.json"
+        ],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "93c6649d-1b36-5346-9a54-cd8b2a684df6",
+        "timestamp": "2026-10-28T07:59:03.228Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": null,
+        "eventType": "job_completed",
+        "status": "completed",
+        "message": "工程と登録ファイルの検査が終了しました。完成品の表示確認と実運用E2Eは別判定です。",
+        "artifactPaths": [],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "46bff844-2098-5c18-8525-731e527b3810",
+        "timestamp": "2026-10-28T08:00:28.457Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "writing",
+        "eventType": "artifact_open_requested",
+        "status": "completed",
+        "message": "Windowsファイルオープン要求：post.txt / SHA-256 09c2b5edd08a27387d36f508c46cbe306e0c52c8848d51dae613a01641cd0a47。表示成功・CUA成功の判定ではありません。",
+        "artifactPaths": [
+          "C:/example/ai-work-visualizer/post.txt"
+        ],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      },
+      {
+        "eventId": "75baf425-3b36-5151-a88a-ac3e91682499",
+        "timestamp": "2026-10-28T08:00:28.723Z",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "workflowId": "codex-general-v1",
+        "nodeId": "writing",
+        "eventType": "artifact_open_os_accepted",
+        "status": "completed",
+        "message": "Windowsがファイルオープン要求を受理しました。表示内容は別途確認してください。",
+        "artifactPaths": [
+          "C:/example/ai-work-visualizer/post.txt"
+        ],
+        "edgeId": null,
+        "errorCode": null,
+        "mode": "real"
+      }
+    ],
+    "approvals": [
+      {
+        "id": "53f3c1c8-09dc-511e-80a5-828e336fd6bb",
+        "requestId": null,
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "nodeId": "sns_review",
+        "kind": "content_review",
+        "title": "文章案を確認して納品を承認",
+        "details": "文章案の実内容とhashを確認し、納品を承認または停止する。外部公開の承認ではない。",
+        "params": {
+          "artifactPath": "C:/example/ai-work-visualizer/post.txt",
+          "sha256": "09c2b5edd08a27387d36f508c46cbe306e0c52c8848d51dae613a01641cd0a47"
+        },
+        "resolved": true,
+        "decision": "accept"
+      }
+    ],
+    "instructions": [
+      {
+        "id": "897f90a0-3c23-54a9-bfd2-69ab8cb51135",
+        "jobId": "db18f93b-1373-5406-95d6-570b3d2cceb0",
+        "kind": "initial",
+        "text": "SNS向けに、机の片づけを始めるための日本語の短文を1件作成してください。\n\n条件：\n\n- 120〜180字程度\n- 「まずは一つだけ」を必ず含める\n- 「5分」を必ず含める\n- 落ち着いた前向きな文章にする\n- 実体験を創作しない\n- 効果を保証しない\n- 商品紹介・URLを入れない\n- SNSへの投稿は行わない\n\n作成した文章を確認できる状態にしてください。",
+        "timestamp": "2026-10-28T07:55:47.288Z"
+      }
+    ],
+    "positions": {},
+    "dataPath": "C:/example/ai-work-visualizer/native-data",
+    "settings": {
+      "setupComplete": true,
+      "codexPath": "C:/example/ai-work-visualizer/codex.exe",
+      "workRoot": "C:/example/ai-work-visualizer/work",
+      "outputRoot": "C:/example/ai-work-visualizer/deliveries",
+      "model": "",
+      "approvalPolicy": "on-request",
+      "inputPaths": []
+    }
+  }
+}
