@@ -24,26 +24,26 @@ impl TokenSink for Sink{
      let parent=p.stack.last().map(|x|x.tag.as_str());
      let placement=match tag.as_str(){"html"=>parent.is_none()&&!p.body_seen,"head"=>parent==Some("html")&&!p.body_seen,"body"=>parent==Some("html"),"meta"|"title"|"style"=>parent==Some("head"),_=>p.body};
      if !placement{p.errors.push(format!("HTMLの配置が不正: {tag}"))}
-     if tag=="html"{p.ja=t.attrs.iter().any(|a|a.name.local.as_ref()=="lang"&&a.value.as_ref()=="ja")}
+     if tag=="html"{p.ja=t.attrs.iter().any(|a|(&*a.name.local)=="lang"&&a.value.as_ref()=="ja")}
      if tag=="meta"{
-      p.utf8|=t.attrs.iter().any(|a|a.name.local.as_ref()=="charset"&&a.value.eq_ignore_ascii_case("utf-8"));
-      p.viewport|=t.attrs.iter().any(|a|a.name.local.as_ref()=="name"&&a.value.as_ref()=="viewport")&&t.attrs.iter().any(|a|a.name.local.as_ref()=="content"&&a.value.contains("width=device-width"));
+      p.utf8|=t.attrs.iter().any(|a|(&*a.name.local)=="charset"&&a.value.eq_ignore_ascii_case("utf-8"));
+      p.viewport|=t.attrs.iter().any(|a|(&*a.name.local)=="name"&&a.value.as_ref()=="viewport")&&t.attrs.iter().any(|a|(&*a.name.local)=="content"&&a.value.contains("width=device-width"));
      }
      if tag=="title"{p.title=true}if tag=="h1"&&p.body{p.h1=true}
      if tag=="img"{
-      let src=t.attrs.iter().find(|a|a.name.local.as_ref()=="src").map(|a|a.value.to_string()).unwrap_or_default();
+      let src=t.attrs.iter().find(|a|(&*a.name.local)=="src").map(|a|a.value.to_string()).unwrap_or_default();
       if !self.1.contains(&src){p.errors.push("同一Jobで承認済みの相対画像参照が必要です".into())}
-      if !t.attrs.iter().any(|a|a.name.local.as_ref()=="alt"){p.errors.push("画像のalt属性が必要です".into())}
+      if !t.attrs.iter().any(|a|(&*a.name.local)=="alt"){p.errors.push("画像のalt属性が必要です".into())}
       p.images.push(src);
      }
      let mut id=None;
      for a in &t.attrs{
-      let key=a.name.local.as_ref();let value=a.value.as_ref();
+      let key=(&*a.name.local);let value=a.value.as_ref();
       let allowed=match key{
        "class"=>true,"id"=>!value.is_empty()&&!value.chars().any(|c|c.is_whitespace()||c.is_control()),
        "style"=>{if let Err(e)=crate::css_policy::validate(value,true){p.errors.push(e)}true},
        "lang"=>tag=="html"&&value=="ja","charset"=>tag=="meta"&&value.eq_ignore_ascii_case("utf-8"),
-       "name"=>tag=="meta"&&value=="viewport","content"=>tag=="meta"&&t.attrs.iter().any(|a|a.name.local.as_ref()=="name"&&a.value.as_ref()=="viewport"),
+       "name"=>tag=="meta"&&value=="viewport","content"=>tag=="meta"&&t.attrs.iter().any(|a|(&*a.name.local)=="name"&&a.value.as_ref()=="viewport"),
        "datetime"=>tag=="time","aria-label"=>!value.trim().is_empty(),
        "src"=>tag=="img"&&self.1.iter().any(|s|s==value),"alt"=>tag=="img",
        "width"|"height"=>tag=="img"&&value.parse::<u32>().is_ok_and(|v|v>0&&v<=8192),
@@ -134,5 +134,25 @@ pub fn require_document_structure(p:&Document)->Result<(),String>{
   for raw in [document("<div id=\"same\">a</div><p id=\"same\">b</p>"),document("<p aria-describedby=\"missing\">Reference</p>"),document("<div id=\"bad id\">x</div>"),document("<div>x</span>"),document("<p style=\"display:none\">hidden</p>")]{assert!(inspect(&raw).is_err());}
   let head_only=raw.replace("<title>Check</title>","<title id=\"head\">Check</title>").replace("Reference</p>","Reference</p><p aria-labelledby=\"head\">x</p>");assert!(inspect(&head_only).is_err());
   let style_only=raw.replace("<style>","<style id=\"style-only\">").replace("Reference</p>","Reference</p><p aria-labelledby=\"style-only\">x</p>");assert!(inspect(&style_only).is_err());
+ }
+}
+
+#[cfg(test)]
+mod attribute_compat_tests {
+ use super::*;
+ fn page(body:&str)->String {format!("<!doctype html><html lang=\"ja\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>Check</title></head><body><h1>Check</h1><section>{body}</section></body></html>")}
+ #[test]
+ fn attributes_structure_and_approved_images_preserve_policy() {
+  let raw=page("<p id=\"label\">本文</p><p aria-labelledby=\"label\">説明</p><img src=\"assets/a.png\" alt=\"図\" width=\"10\" loading=\"lazy\">");
+  let doc=inspect_with_images(&raw,&["assets/a.png".into()]).unwrap();
+  require_document_structure(&doc).unwrap();assert_eq!(doc.images,vec!["assets/a.png"]);
+  assert!(inspect(&raw).is_err());
+  for changed in [raw.replace(" alt=\"図\"",""),raw.replace("assets/a.png","https://example.invalid/x"),raw.replace("width=\"10\"","width=\"8193\""),raw.replace("<p id=", "<p onclick=\"x\" id="),raw.replace("aria-labelledby=\"label\"","aria-labelledby=\"missing\"")] {
+   assert!(inspect_with_images(&changed,&["assets/a.png".into()]).is_err());
+  }
+  for changed in [raw.replace("lang=\"ja\"","lang=\"en\""),raw.replace("UTF-8","shift_jis")] {assert!(inspect_with_images(&changed,&["assets/a.png".into()]).is_err());}
+  let missing=raw.replace("<meta name=\"viewport\" content=\"width=device-width\">","");
+  let doc=inspect_with_images(&missing,&["assets/a.png".into()]).unwrap();assert!(require_document_structure(&doc).is_err());
+  assert!(inspect(&page("<script>alert(1)</script>")).is_err());
  }
 }
