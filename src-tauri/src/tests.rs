@@ -1,6 +1,6 @@
 use crate::{engine::*,model::*};
 use std::{fs,path::PathBuf,time::{Duration,Instant},sync::atomic::Ordering};
-fn test_root(name:&str)->PathBuf{let base=std::env::var_os("AI_GUILD_TEST_ROOT").map(PathBuf::from).unwrap_or_else(||PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().join("target/test-data"));fs::create_dir_all(&base).unwrap();fs::write(base.join(".ai-guild-qa"),"isolated regression data; no inference").unwrap();let p=base.join(format!("{name}-{}",id()));fs::create_dir_all(&p).unwrap();fs::write(p.join(".ai-guild-qa"),"isolated regression data").unwrap();p}
+pub(crate) fn test_root(name:&str)->PathBuf{let base=std::env::var_os("AI_GUILD_TEST_ROOT").map(PathBuf::from).unwrap_or_else(||PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().join("target/test-data"));fs::create_dir_all(&base).unwrap();fs::write(base.join(".ai-guild-qa"),"isolated regression data; no inference").unwrap();let p=base.join(format!("{name}-{}",id()));fs::create_dir_all(&p).unwrap();fs::write(p.join(".ai-guild-qa"),"isolated regression data").unwrap();p}
 fn wait(e:&Engine,seconds:u64){let until=Instant::now()+Duration::from_secs(seconds);while e.worker.load(Ordering::SeqCst)&&Instant::now()<until{std::thread::sleep(Duration::from_millis(80))}assert!(!e.worker.load(Ordering::SeqCst),"worker exceeded bounded test wait");}
 #[test]fn demo_lifecycle_persistence_and_artifact_integrity(){
  let path=test_root("demo-test");let e=Engine::open(&path,None).unwrap();e.update(|s|{s.mode="demo".into();Ok(())}).unwrap();
