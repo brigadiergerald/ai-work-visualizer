@@ -12,7 +12,7 @@
 - resourcesは6文書の明示リストだけ。インストール先の `licenses/` に配置。プロファイル、DB、認証情報、成果物、追加スキン、テストZIPをコピーしない。
 - コードのLICENSE/NOTICEと素材条件、第三者通知、認証注意を含むREADMEをそれぞれ保持。単一のApacheライセンス画面としてまとめない。
 - スキンは既存の表示専用ライブラリのまま。購入/課金/配布基盤は追加しない。
-- CIは既存のWindowsネイティブテストの成功後に生成し、署名なし状態を検査してSHA256を付ける。7日保持のActions artifactのみ。GitHub Release、署名、updater、販売設定は追加しない。公開リポジトリのartifactは秘密の配布経路ではない。
+- CIは既存のWindowsネイティブテストの成功後に生成し、署名なし状態を検査してSHA256を付ける。専用GitHub-hosted Windows runnerではサイレント導入・6文書のハッシュ・署名なしアプリ・同版再導入・削除・合成プロファイル保持も試験する。実際のDBや購入スキン、GUI起動はこのスモーク試験の対象外。7日保持のActions artifactのみ。GitHub Release、署名、updater、販売設定は追加しない。公開リポジトリのartifactは秘密の配布経路ではない。
 
 ## Windows x64ビルド
 
@@ -99,7 +99,7 @@ README記載のローカル/OSS向け認証と商用・ホスト型サービス�
 | --- | --- |
 | mainのSHA固定・設定/保存先/Core境界/ライセンス文書のソース確認 | 確認済み |
 | 通常bundle=false/--no-bundleの維持 | 差分で確認 |
-| 追加JSONとTauri公式設定項目の照合 | 静的確認 |
+| 追加JSONとTauri公式設定項目の照合 | 静的確認、JSON/YAML構文解析成功 |
 | ローカルnpm/check/build/boundary/native | 未実施（Linux、完全なソース/依存環境なし） |
 | Windows CIとNSIS生成 | PRの該当runの結果を確認すること。作成時点では未確認 |
 | 新規PCへ導入/起動/再導入/削除/データ保持 | 未実施、上記Windows実機手順が必要 |

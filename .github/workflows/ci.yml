@@ -61,6 +61,9 @@ jobs:
       - name: Build unsigned validation installer
         shell: powershell
         run: ./scripts/package-validation.ps1
+      - name: Smoke test installer on disposable runner
+        shell: powershell
+        run: ./scripts/test-installer-ci.ps1
       - name: Keep validation installer (not a GitHub Release)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
