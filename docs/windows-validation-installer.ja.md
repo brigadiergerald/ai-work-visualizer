@@ -39,7 +39,7 @@ TauriのbeforeBuildCommandがフロントを再生成する。Cargoは `--locked
 `CARGO_TARGET_DIR` を設定している場合は解除した専用シェルを使う（スクリプトは標準出力先を検査する）。
 署名設定を持たないクリーンな環境で実行する。スクリプトは生成物がNotSignedでなければ失敗とする。
 
-ActionsではPRのCI → Windows native checks → Artifactsから取得する。runのcommit SHAとartifact名が対象差分のSHAに一致することを確認する。
+ActionsではPRのCI → Windows native checks → Artifactsから取得する。runのhead SHAが対象差分のSHAに一致することを確認する。PR実行のartifact名末尾はcheckoutした一時merge commitのgithub.shaであり、head SHAとは異なる。
 artifact ZIPとNSISのsetup.exeは別物。ZIPを展開してsetup.exeとそのSHA256を照合する。
 
 ```powershell
@@ -101,11 +101,24 @@ README記載のローカル/OSS向け認証と商用・ホスト型サービス�
 | 通常bundle=false/--no-bundleの維持 | 差分で確認 |
 | 追加JSONとTauri公式設定項目の照合 | 静的確認、JSON/YAML構文解析成功 |
 | ローカルnpm/check/build/boundary/native | 未実施（Linux、完全なソース/依存環境なし） |
-| Windows CIとNSIS生成 | PRの該当runの結果を確認すること。作成時点では未確認 |
+| Windows CIとNSIS生成 | 成功。署名なしNSIS 3.65 MiB、SHA256は下記 |
+| Windows CIの導入/同版再導入/削除 | 成功。6文書一致、合成プロファイル/skins/presentation保持。GUI起動は未検証 |
 | 新規PCへ導入/起動/再導入/削除/データ保持 | 未実施、上記Windows実機手順が必要 |
 | Codex実接続/推論/外部投稿 | 未実施、今回の範囲外 |
 
 Linux環境にRust/PowerShell/Windows実行環境はなく、git cloneはネットワーク制限で403。GitHub連携の読み取りで対象ソースを確認した。
-CI成功とインストール成功、実接続成功を混同しない。別途CI結果が得られた場合はrun URL、SHA、各step結果、artifact名とSHA256を追記する。
+CI成功とインストール成功、実接続成功を混同しない。
+
+実測証跡:
+- [CI run 41263353171](https://github.com/brigadiergerald/ai-work-visualizer/actions/runs/41263353171): 成功。
+- 検証した実装head SHA: `21bf25065048255e1be988a8ecfdc36d63e1580f`。
+- CI checkout merge SHA: `ed74ad21f4bf8d79cc556a160be330d3725a9081`。
+- Frontend: 109成功、境界: 3成功、Windows native: 162成功。依存監査も成功。
+- [生成物ZIP](https://github.com/brigadiergerald/ai-work-visualizer/actions/runs/41263353171/artifacts/13066004062): `unsigned-windows-x64-validation-ed74ad21f4bf8d79cc556a160be330d3725a9081`。
+- ZIPには `AI GUILD_0.1.0_x64-setup.exe` と `.sha256` を収録。保存期限は2026-11-08 11:10 JST予定（GitHub側の保持規則で変わる場合あり）。
+- setup.exe SHA256: `fd75d458e03f48ea69f988427d8f6d70e8ccb4b29e8200d5ed36c5cb2e49f996`。
+- 使い捨てGitHub-hosted Windows runnerでサイレント導入、6文書ハッシュ、署名なしアプリ、同版再導入、削除、合成プロファイル保持が成功。
+- インストール先と合成プロファイルの検証であり、実際の履歴DB・WebView2・購入スキン・Windows 10実機・画面起動・実接続は未検証。
+- この結果追記は文書のみの変更で、上記で検証したインストーラー設定/スクリプトを変更しない。
 
 参考: [Tauri設定](https://v2.tauri.app/reference/config/)、[Tauri CLI](https://v2.tauri.app/reference/cli/)、[Windows installer](https://v2.tauri.app/distribute/windows-installer/)。
