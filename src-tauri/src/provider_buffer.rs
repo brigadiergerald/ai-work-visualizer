@@ -19,14 +19,14 @@ pub fn approved_body(body:&[u8])->bool {
 fn read(t:&mut dyn ReadTransport,document:String,evidence:&mut Vec<ReadEvidence>)->Result<Value,CheckError>{
  let body=serde_json::to_vec(&json!({"query":document})).unwrap();
  if !approved_body(&body){return Err(CheckError::new("UNSUPPORTED"))}
- let started=crate::model::now();let request_sha256=format!("{:x}",Sha256::digest(&body));
+ let started=crate::model::now();let request_sha256=crate::hashing::hex(&Sha256::digest(&body));
  let reply=t.query(&body);
  let mut item=ReadEvidence{started_at:started,ended_at:crate::model::now(),request_sha256,http_status:None,response_sha256:None,operation:if document==ACCOUNT{"account"}else{"channels"}.into(),result:"UNKNOWN".into()};
  let result=(||{
   let r=reply.map_err(|e|CheckError::new(match e{Error::Timeout=>"TIMEOUT",Error::TooLarge=>"RESPONSE_TOO_LARGE",Error::Transport=>"TRANSPORT_UNKNOWN"}))?;
   item.http_status=Some(r.status);
   if r.status!=200{return Err(CheckError::new(match r.status{401=>"AUTHENTICATION_FAILED",403=>"FORBIDDEN",429=>"RATE_LIMITED",300..=399=>"REDIRECT_REJECTED",_=>"HTTP_FAILED"}))}
-  item.response_sha256=Some(format!("{:x}",Sha256::digest(&r.bytes)));
+  item.response_sha256=Some(crate::hashing::hex(&Sha256::digest(&r.bytes)));
   let v:Value=serde_json::from_slice(&r.bytes).map_err(|_|CheckError::new("INVALID_RESPONSE"))?;
   // Never expose arbitrary GraphQL error text or partial data as success.
   if v.get("errors").is_some_and(|x|!x.is_null()&&x.as_array().is_none_or(|a|!a.is_empty())){return Err(CheckError::new("GRAPHQL_ERROR"))}
