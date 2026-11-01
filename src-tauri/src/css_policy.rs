@@ -1,10 +1,10 @@
 //! Fail-closed static CSS policy. CSS Syntax tokens decode escapes before checks.
 //! This is a restricted document dialect, not a browser or a general CSS sanitizer.
-use cssparser::{Delimiter,ParseError,Parser,ParserInput,Token};
-type E<'i> = ParseError<'i,String>;
+use cssparser::{Delimiter,ParseError,Parser,Token};
+type E = ParseError<String>;
 #[derive(Debug)] enum Atom { Ident(String), Number(f32), Length(f32), Percent(f32), Hash(String), String, Punct(char), Function(String,Vec<Atom>) }
-fn error<'i,T>(p:&Parser<'i,'_>,s:&str)->Result<T,E<'i>>{Err(p.new_custom_error(s.to_string()))}
-fn atoms<'i>(p:&mut Parser<'i,'_>,depth:usize)->Result<Vec<Atom>,E<'i>>{
+fn error<'i,T>(_p:&Parser<'i>,s:&str)->Result<T,E>{Err(ParseError::custom(s.to_string()))}
+fn atoms<'i>(p:&mut Parser<'i>,depth:usize)->Result<Vec<Atom>,E>{
  if depth>12{return error(p,"CSS nesting limit")}
  let mut out=vec![];
  while !p.is_exhausted(){
@@ -33,7 +33,7 @@ fn visible_color(a:&Atom)->bool{match a{
   let nums=v.iter().filter_map(|x|match x{Atom::Number(n)|Atom::Percent(n)=>Some(*n),_=>None}).collect::<Vec<_>>();
   nums.len()==3||(nums.len()==4&&nums[3]>0.)
  },_=>false}}
-fn declarations<'i>(p:&mut Parser<'i,'_>)->Result<(),E<'i>>{
+fn declarations<'i>(p:&mut Parser<'i>)->Result<(),E>{
  while !p.is_exhausted(){
   if p.try_parse(|p|p.expect_semicolon()).is_ok(){continue}
   let name=p.expect_ident_cloned()?.to_ascii_lowercase();p.expect_colon()?;
@@ -56,14 +56,14 @@ fn declarations<'i>(p:&mut Parser<'i,'_>)->Result<(),E<'i>>{
  }
  Ok(())
 }
-fn media_feature<'i>(p:&mut Parser<'i,'_>)->Result<(),E<'i>>{
+fn media_feature<'i>(p:&mut Parser<'i>)->Result<(),E>{
  let feature=p.expect_ident_cloned()?.to_ascii_lowercase();p.expect_colon()?;
  if !["width","min-width","max-width","height","min-height","max-height","orientation"].contains(&feature.as_str()){return error(p,"Unsupported media feature")}
  let v=atoms(p,0)?;
  if v.len()!=1||!matches!(&v[0],Atom::Length(n) if *n>0.)&&!matches!(&v[0],Atom::Ident(s) if feature=="orientation"&&["portrait","landscape"].contains(&s.as_str())){return error(p,"Invalid media feature")}
  Ok(())
 }
-fn rules<'i>(p:&mut Parser<'i,'_>,depth:usize)->Result<(),E<'i>>{
+fn rules<'i>(p:&mut Parser<'i>,depth:usize)->Result<(),E>{
  if depth>8{return error(p,"CSS rule nesting limit")}
  while !p.is_exhausted(){
   let mut prelude=0;let mut media=false;
@@ -83,7 +83,32 @@ fn rules<'i>(p:&mut Parser<'i,'_>,depth:usize)->Result<(),E<'i>>{
 }
 pub fn validate(raw:&str,inline:bool)->Result<(),String>{
  // Unterminated CSS comments/strings/blocks must not be silently auto-closed.
- let mut input=ParserInput::new(raw);let mut parser=Parser::new(&mut input);
+ let mut parser=Parser::new(raw);
  let result=if inline{declarations(&mut parser)}else{rules(&mut parser,0)};
  result.map_err(|e|format!("CSS policy: {e:?}"))
+}
+
+#[cfg(test)]
+mod compatibility_tests {
+ use super::validate;
+ #[test]
+ fn accepted_dialect_still_parses_inline_nested_and_escaped_css() {
+  for css in ["color:#123;font-size:16px",r"c\6flor:rgb(1,2,3)","font-size:clamp(1rem,2vw,3rem);display:grid;opacity:0.5","background:linear-gradient(#123,#456);width:100%"] {
+   validate(css,true).unwrap();validate(&format!("p{{{css}}}"),false).unwrap();
+  }
+  validate("@media screen and (min-width:1px){p{color:#123}}",false).unwrap();
+ }
+ #[test]
+ fn disallowed_tokens_and_concealment_remain_fail_closed() {
+  for css in [r"display:n\6f ne","color:transparent","opacity:0","font-size:0px","width:0px","margin:-1px","background:url(https://example.invalid/x)",r"background:u\72l(x)","color:var(--x)","width:expression(1)","--x:red","color:","color:#123 !important"] {
+   assert!(validate(css,true).is_err(),"{css}");
+  }
+  for css in ["@import 'x';","p{display:none}","@supports(display:grid){p{color:red}}","p{background:url(x)}"] {
+   assert!(validate(css,false).is_err(),"{css}");
+  }
+  let nested=format!("color:{}red{}","min(".repeat(14),")".repeat(14));
+  assert!(validate(&nested,true).is_err());
+  let nested=format!("{}p{{color:red}}{}","@media screen{".repeat(10),"}".repeat(10));
+  assert!(validate(&nested,false).is_err());
+ }
 }
