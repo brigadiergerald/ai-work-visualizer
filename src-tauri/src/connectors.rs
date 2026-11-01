@@ -161,7 +161,7 @@ pub fn perform(e:&Arc<Engine>,action:Action)->Result<Value,String> {
             if c.transport!="webhook" || c.provider_id!="mock-webhook" || c.state!="CONFIGURED" || !c.attempts.is_empty() { return Err("Mock専用の未送信設定だけを一度使用できます。本番・結果不明・送信済みは送信禁止".into()); }
             webhook::validate_url(&c.endpoint_id,true)?;
             let attempt=id();let body=webhook::payload(&c.id,&attempt);
-            use sha2::{Digest,Sha256};let hash=format!("{:x}",Sha256::digest(serde_json::to_vec(&body).unwrap()));
+            use sha2::{Digest,Sha256};let hash=crate::hashing::hex(&Sha256::digest(serde_json::to_vec(&body).unwrap()));
             c.state="UNKNOWN".into();c.last_checked_at=Some(now());
             c.attempts.push(json!({"id":attempt,"startedAt":now(),"endedAt":null,"status":"UNKNOWN","payloadSha256":hash,"externalWrites":0,"scope":"LOCAL_MOCK_ONLY"}));put(db,&mut c)?;
             let result=webhook::send_mock(&body,&c.auth_method,c.settings["scenario"].as_str().unwrap(),c.settings["timeoutMs"].as_u64().unwrap());

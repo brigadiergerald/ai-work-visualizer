@@ -2,7 +2,7 @@
 use crate::{engine::{Engine,verify_artifact},model::*};
 use serde::{Serialize,Deserialize};use serde_json::{json,Value};use sha2::{Digest,Sha256};
 use std::{fs,path::Path,sync::{Arc,atomic::Ordering}};
-pub fn sha(bytes:&[u8])->String{format!("{:x}",Sha256::digest(bytes))}
+pub fn sha(bytes:&[u8])->String{crate::hashing::hex(&Sha256::digest(bytes))}
 #[derive(Clone,Serialize,Deserialize,PartialEq,Debug)]#[serde(rename_all="camelCase")]
 pub struct Binding{pub node_id:String,pub turn_id:String,pub response_sha256:String,pub response_bytes:u64,pub request_sha256:String}
 #[derive(Clone,Serialize,Deserialize,PartialEq,Debug)]#[serde(rename_all="camelCase")]

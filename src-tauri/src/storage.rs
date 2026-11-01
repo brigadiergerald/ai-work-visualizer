@@ -39,7 +39,7 @@ mod uint_compat_tests {
  use rusqlite::{params, Connection, Error};
  #[test]
  fn integer_storage_reopens_without_migration_and_rejects_out_of_range() {
-  let path=std::env::temp_dir().join(format!("uint-compat-{}.sqlite",uuid::Uuid::new_v4()));
+  let path=crate::tests::test_root("uint-compat").join("revisions.sqlite");
   {
    let db=Connection::open(&path).unwrap();
    db.execute_batch("CREATE TABLE revisions(value INTEGER NOT NULL)").unwrap();
@@ -68,6 +68,6 @@ mod uint_compat_tests {
    }
    assert_eq!(db.query_row("SELECT count(*) FROM revisions",[],|r|r.get::<_,i64>(0)).unwrap(),3);
   }
-  std::fs::remove_file(path).unwrap();
+  // Retain the database in the isolated test root, like the other storage tests.
  }
 }
