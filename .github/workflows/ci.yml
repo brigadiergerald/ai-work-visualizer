@@ -58,3 +58,18 @@ jobs:
         run: cargo build --locked --manifest-path src-tauri/Cargo.toml
       - name: Run isolated offline native tests
         run: npm run test:native
+      - name: Build unsigned validation installer
+        shell: powershell
+        run: ./scripts/package-validation.ps1
+      - name: Smoke test installer on disposable runner
+        shell: powershell
+        run: ./scripts/test-installer-ci.ps1
+      - name: Keep validation installer (not a GitHub Release)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: unsigned-windows-x64-validation-${{ github.sha }}
+          path: |
+            src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*-setup.exe
+            src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*-setup.exe.sha256
+          if-no-files-found: error
+          retention-days: 7
