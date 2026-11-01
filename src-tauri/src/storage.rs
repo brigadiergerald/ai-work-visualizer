@@ -33,3 +33,41 @@ fn validate_contexts(db:&Connection,s:&Snapshot,loading:bool)->Result<(),String>
  if loading&&count!=s.purpose_job_context.len(){return Err("Jobと永続Purpose contextの件数が一致しません".into())}Ok(())
 }
 #[cfg(test)] mod tests{use super::*;#[test]fn roundtrip(){let mut db=Store::open(Path::new(":memory:")).unwrap();let mut s=Snapshot::new(Path::new("C:/test"));s.event(None,"test","queued","日本語の記録",None,vec![]);db.save(&s).unwrap();let loaded=db.load().unwrap().unwrap();assert_eq!(loaded.events[0].message,"日本語の記録");assert_eq!(loaded.workflow.nodes.len(),5);}}
+
+#[cfg(test)]
+mod uint_compat_tests {
+ use rusqlite::{params, Connection, Error};
+ #[test]
+ fn integer_storage_reopens_without_migration_and_rejects_out_of_range() {
+  let path=crate::tests::test_root("uint-compat").join("revisions.sqlite");
+  {
+   let db=Connection::open(&path).unwrap();
+   db.execute_batch("CREATE TABLE revisions(value INTEGER NOT NULL)").unwrap();
+   // Simulate existing SQLite INTEGER rows, before the dependency update.
+   for n in [0i64,1,i64::MAX] { db.execute("INSERT INTO revisions VALUES(?1)",[n]).unwrap(); }
+  }
+  {
+   let mut db=Connection::open(&path).unwrap();
+   let values=db.prepare("SELECT value FROM revisions ORDER BY rowid").unwrap()
+    .query_map([],|r|r.get::<_,u64>(0)).unwrap().collect::<Result<Vec<_>,_>>().unwrap();
+   assert_eq!(values,vec![0,1,i64::MAX as u64]);
+   for n in values {
+    let (v,kind):(u64,String)=db.query_row("SELECT ?1,typeof(?1)",params![n],|r|Ok((r.get(0)?,r.get(1)?))).unwrap();
+    assert_eq!((v,kind),(n,"integer".into()));
+   }
+   assert!(matches!(db.query_row("SELECT -1",[],|r|r.get::<_,u64>(0)),Err(Error::IntegralValueOutOfRange(..))));
+   for sql in ["SELECT 1.5","SELECT '1'","SELECT NULL"] {
+    assert!(matches!(db.query_row(sql,[],|r|r.get::<_,u64>(0)),Err(Error::InvalidColumnType(..))));
+   }
+   for n in [i64::MAX as u64+1,u64::MAX] {
+    let tx=db.transaction().unwrap();
+    tx.execute("INSERT INTO revisions VALUES(7)",[]).unwrap();
+    assert!(tx.execute("INSERT INTO revisions VALUES(?1)",params![n]).is_err());
+    // A failed save must roll back earlier writes in the same transaction.
+    drop(tx);
+   }
+   assert_eq!(db.query_row("SELECT count(*) FROM revisions",[],|r|r.get::<_,i64>(0)).unwrap(),3);
+  }
+  // Retain the database in the isolated test root, like the other storage tests.
+ }
+}
