@@ -1,4 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem="windows")]
+mod hashing;
 mod presentation;#[cfg(test)]mod presentation_tests;
 mod skin_package;mod skins;#[cfg(test)]mod skin_tests;
 mod core_api;mod sns;mod browser;mod integrations;mod purposes;

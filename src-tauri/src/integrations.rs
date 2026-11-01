@@ -42,7 +42,7 @@ struct Delivery {
  id:String,job_id:String,source_digest:String,plan:BoundPlan,status:String,created_at:String,
  folder:Option<String>,files:Vec<PackageFile>,manifest:Option<Value>,manifest_sha256:Option<String>,history:Vec<Value>,
 }
-fn hash(b:&[u8])->String{format!("{:x}",Sha256::digest(b))}
+fn hash(b:&[u8])->String{crate::hashing::hex(&Sha256::digest(b))}
 fn init(db:&Connection)->Result<(),String>{db.execute_batch(
  "CREATE TABLE IF NOT EXISTS integration_profiles(id TEXT PRIMARY KEY,revision INTEGER NOT NULL,json TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS integration_checks(id TEXT PRIMARY KEY,profile_id TEXT NOT NULL,json TEXT NOT NULL);

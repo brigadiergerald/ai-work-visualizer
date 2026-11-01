@@ -69,7 +69,7 @@ fn handler_available()->bool {
  #[cfg(windows)] {crate::rpc::command("reg.exe").args(["query",r"HKCR\codex","/v","URL Protocol"]).output().is_ok_and(|o|o.status.success())}
  #[cfg(not(windows))] {false}
 }
-fn hash(bytes:&[u8])->String {format!("{:x}",Sha256::digest(bytes))}
+fn hash(bytes:&[u8])->String {crate::hashing::hex(&Sha256::digest(bytes))}
 fn handoff_path(root:&Path,id:&str)->Result<std::path::PathBuf,String>{uuid::Uuid::parse_str(id).map_err(|_|"引き渡しIDが不正です")?;Ok(root.join("browser-handoffs").join(id).join("handoff.json"))}
 fn private_dir(path:&Path)->Result<(),String>{
  fs::create_dir(path).map_err(|e|e.to_string())?;

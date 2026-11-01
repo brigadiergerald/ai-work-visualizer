@@ -21,7 +21,7 @@ pub struct JobContext{
  pub content_language:String,pub submitted_input:Value,pub input_sha256:String,pub workflow_sha256:String,
 }
 pub struct Prepared{pub instruction:String,pub workflow:Workflow,pub context:JobContext}
-pub fn sha256(bytes:&[u8])->String{format!("{:x}",Sha256::digest(bytes))}
+pub fn sha256(bytes:&[u8])->String{crate::hashing::hex(&Sha256::digest(bytes))}
 pub fn catalog()->Value{json!({"contractVersion":1,"purposes":[
  {"id":SOCIAL,"definitionVersion":VERSION,"roleMapVersion":crate::sns_team::ROLE_MAP,"label":"SNS文章制作","description":"調査・ディレクター・製作・検品と投稿。今回は接続先の確認まで","availability":"READY","reasonCode":null,"publicationMode":"PREPARATION_ONLY",
  "inputSchema":{"type":"object","additionalProperties":false,"required":["theme","contentLanguage"],"maxInstructionUtf8Bytes":MAX_BYTES,"properties":{"theme":{"type":"string","minLength":1,"maxUtf8Bytes":MAX_BYTES},"contentLanguage":{"type":"string","enum":["ja","en"]},"context":{"type":"string","maxUtf8Bytes":MAX_BYTES}}}},

@@ -52,6 +52,6 @@ fn response(v:Value)->Result<Reply,Error>{Ok(Reply{status:200,bytes:serde_json::
  assert_eq!(fs::read(f).unwrap(),original);assert!(Secret::from_bytes(b"bad\r\nkey".to_vec()).is_err());
 }
 #[test]fn provider_future_publication_approval_binds_all_target_and_text_fields(){
- use sha2::{Digest,Sha256};let text="本文".to_string();let b=PostBinding{job_id:"j".into(),provider_id:"p".into(),connection_id:"c".into(),workspace_id:"w".into(),channel_id:"ch".into(),platform:"s".into(),text_sha256:format!("{:x}",Sha256::digest(text.as_bytes())),text,method:"schedule".into(),scheduled_at:Some("2026-11-01T01:00:00Z".into())};let a=PublicationApproval{approval_id:"publication-only".into(),binding:b.clone()};assert!(a.matches(&b));
+ use sha2::{Digest,Sha256};let text="本文".to_string();let b=PostBinding{job_id:"j".into(),provider_id:"p".into(),connection_id:"c".into(),workspace_id:"w".into(),channel_id:"ch".into(),platform:"s".into(),text_sha256:crate::hashing::hex(&Sha256::digest(text.as_bytes())),text,method:"schedule".into(),scheduled_at:Some("2026-11-01T01:00:00Z".into())};let a=PublicationApproval{approval_id:"publication-only".into(),binding:b.clone()};assert!(a.matches(&b));
  for field in ["jobId","providerId","connectionId","workspaceId","channelId","platform","text","textSha256","method","scheduledAt"]{let mut changed=serde_json::to_value(&b).unwrap();changed[field]=json!("changed");let changed:PostBinding=serde_json::from_value(changed).unwrap();assert!(!a.matches(&changed),"{field}");}
 }

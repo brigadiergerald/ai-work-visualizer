@@ -60,5 +60,5 @@ pub fn inspect(raw:&str,plan:&Plan,input:&str)->Result<Quality,String>{
  if format(input)=="md"&&input.contains("チェックボックス")&&!regex::Regex::new(r"(?m)^\s*[-*+] \[ \] \S.*$").unwrap().is_match(raw){
   return Err("指定されたMarkdownの未チェックのチェックボックスがありません".into())
  }
- Ok(Quality{artifact_sha256:format!("{:x}",Sha256::digest(raw.as_bytes())),machine_status:"PASS".into(),display_status:"NOT_VERIFIED".into(),checked_at:now(),checks:vec!["document format and restricted content".into(),"all planned requirements and independent quoted original copy".into(),"semantic/user-value review and display remain separate".into()]})
+ Ok(Quality{artifact_sha256:crate::hashing::hex(&Sha256::digest(raw.as_bytes())),machine_status:"PASS".into(),display_status:"NOT_VERIFIED".into(),checked_at:now(),checks:vec!["document format and restricted content".into(),"all planned requirements and independent quoted original copy".into(),"semantic/user-value review and display remain separate".into()]})
 }

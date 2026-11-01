@@ -129,6 +129,6 @@ pub enum PostState{Prepared,ApprovalRequired,Approved,SubmissionStarted,Provider
 pub struct PostBinding{pub job_id:String,pub provider_id:String,pub connection_id:String,pub workspace_id:String,pub channel_id:String,pub platform:String,pub text:String,pub text_sha256:String,pub method:String,pub scheduled_at:Option<String>}
 #[derive(Clone,Debug,Serialize,Deserialize)]#[serde(rename_all="camelCase")]
 pub struct PublicationApproval{pub approval_id:String,pub binding:PostBinding}
-impl PublicationApproval{pub fn matches(&self,current:&PostBinding)->bool{use sha2::{Digest,Sha256};!self.approval_id.is_empty()&&self.binding==*current&&format!("{:x}",Sha256::digest(current.text.as_bytes()))==current.text_sha256}}
+impl PublicationApproval{pub fn matches(&self,current:&PostBinding)->bool{use sha2::{Digest,Sha256};!self.approval_id.is_empty()&&self.binding==*current&&crate::hashing::hex(&Sha256::digest(current.text.as_bytes()))==current.text_sha256}}
 #[derive(Clone,Serialize,Deserialize)]#[serde(rename_all="camelCase")]
 pub struct FuturePost{pub binding:PostBinding,pub publication_approval:Option<PublicationApproval>,pub state:PostState,pub external_receipt_id:Option<String>,pub provider_status:Option<String>,pub publication_check:String,pub error:Option<CheckError>,pub submission_record_id:Option<String>,pub provider_idempotency_key:Option<String>}
