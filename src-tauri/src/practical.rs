@@ -72,7 +72,7 @@ pub(crate) fn inspect_document(raw:&str,doc:&crate::html_policy::Document,plan:&
  for requirement in plan.requirements.iter().chain(&plan.checklist){if !text.contains(requirement){return Err(format!("表示本文に必須条件/運営作業がありません: {requirement}"))}}
  if instruction.contains("森の図書室"){for lock in ["2026年11月14日","14:00","16:00","森の図書室","当日受付","架空"]{if !text.contains(lock){return Err(format!("完成品にS1固定条件がありません: {lock}"))}}}
  if !text.contains("開催案内")||!text.contains("運営チェックリスト"){return Err("開催案内と運営チェックリストの2区分が必要です".into())}
- Ok(Quality{artifact_sha256:format!("{:x}",Sha256::digest(raw.as_bytes())),machine_status:"PASS".into(),display_status:"NOT_VERIFIED".into(),checked_at:now(),checks:vec!["original instruction + independent S1 locks".into(),"all planned requirements/checklist in tokenized body text; visual readability separate".into(),"restricted static HTML tags/attributes/CSS".into(),"Japanese sections and checklist structure".into()]})
+ Ok(Quality{artifact_sha256:crate::hashing::hex(&Sha256::digest(raw.as_bytes())),machine_status:"PASS".into(),display_status:"NOT_VERIFIED".into(),checked_at:now(),checks:vec!["original instruction + independent S1 locks".into(),"all planned requirements/checklist in tokenized body text; visual readability separate".into(),"restricted static HTML tags/attributes/CSS".into(),"Japanese sections and checklist structure".into()]})
 }
 pub fn required_inputs(j:&Job,n:&Node)->Result<Vec<Artifact>,String>{
  let mut files=vec![];

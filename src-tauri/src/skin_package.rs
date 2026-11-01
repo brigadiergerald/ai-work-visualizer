@@ -7,7 +7,7 @@ pub const MAX_TOTAL:usize=32*1024*1024;
 pub const MAX_FILE:usize=8*1024*1024;
 pub const MAX_ENTRIES:usize=256;
 pub const MAX_PIXELS:u64=16*1024*1024;
-pub fn hash(b:&[u8])->String{format!("{:x}",Sha256::digest(b))}
+pub fn hash(b:&[u8])->String{crate::hashing::hex(&Sha256::digest(b))}
 pub fn err(code:&str)->String{format!("SKIN_{code}")}
 pub fn safe_path(s:&str)->Result<(),String>{
  if s.is_empty()||s.len()>180||s.starts_with('/')||!s.bytes().all(|b|b.is_ascii_alphanumeric()||b"-._/".contains(&b)){return Err(err("PATH"))}

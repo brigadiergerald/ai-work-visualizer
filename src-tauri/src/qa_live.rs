@@ -5,7 +5,7 @@ use serde_json::{Value,json};use sha2::{Sha256,Digest};
 pub struct LiveTrial {pub permit:PathBuf,pub root:PathBuf,pub sqlite:PathBuf,pub logs:PathBuf,pub model:String,authority:PathBuf,authority_sha:String,connection_id:String}
 struct Lock(PathBuf);impl Drop for Lock{fn drop(&mut self){let _=fs::remove_file(&self.0);}}
 fn canonical(p:&Path)->Result<PathBuf,String>{p.canonicalize().map_err(|e|e.to_string())}
-fn hash(p:&Path)->Result<String,String>{Ok(format!("{:x}",Sha256::digest(fs::read(p).map_err(|e|e.to_string())?)))}
+fn hash(p:&Path)->Result<String,String>{Ok(crate::hashing::hex(&Sha256::digest(fs::read(p).map_err(|e|e.to_string())?)))}
 fn limits(v:&Value)->Result<(u64,u64),String>{
  let mut maximum=(2,6);
  if let Some(amendment)=v.get("amendment"){
